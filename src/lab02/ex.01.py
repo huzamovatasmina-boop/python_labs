@@ -50,10 +50,23 @@ def flatten(mat: list[list | tuple]) -> list:
         result.extend(item)
     return result
 
-print("=== Arrays Tests ===")
-print(min_max([3, -1, 5, 5, 0]))
-print(min_max([]))
-print(unique_sorted([3, 1, 2, 1, 3]))
+# Тест 1: нормальный случай
+print("min_max([3, -1, 5, 5, 0]):", min_max([3, -1, 5, 5, 0]))
 
-print(flatten([[1, 2], [3, 4]]))
-print(flatten([1, [3, 4]]))
+# Тест 2: обработка ValueError
+try:
+    print("min_max([]):", min_max([]))
+except ValueError as e:
+    print(f"min_max([]): ValueError - {e}")
+
+# Тест 3: уникальные значения
+print("unique_sorted([3, 1, 2, 1, 3]):", unique_sorted([3, 1, 2, 1, 3]))
+
+# Тест 4: нормальное расплющивание
+print("flatten([[1, 2], [3, 4]]):", flatten([[1, 2], [3, 4]]))
+
+# Тест 5: обработка TypeError
+try:
+    print("flatten([1, [3, 4]]):", flatten([1, [3, 4]]))
+except TypeError as e:
+    print(f"flatten([1, [3, 4]]): TypeError - {e}")
