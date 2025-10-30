@@ -41,11 +41,11 @@ def format_record(rec: tuple[str, str, float]) -> str:
     gpa_formatted = f"{gpa:.2f}"
 
     return f"{surname} {initials}, гр. {group}, GPA {gpa_formatted}"
-
+'''
 print("\n=== Tuples Tests ===")
 print(format_record(("Иванов Иван Иванович", "BIVT-25", 4.6)))  # "Иванов И.И., гр. BIVT-25, GPA 4.60"
 print(format_record(("Петров Пётр", "IKBO-12", 5.0)))  # "Петров П., гр. IKBO-12, GPA 5.00"
-
+'''
 print("\n=== Tuples Tests ===")
 
 # Тест 1: нормальный случай с отчеством
@@ -64,10 +64,10 @@ except Exception as e:
 
 # Тест 3: нормальный случай с лишними пробелами
 try:
-    result = format_record(("  сидорова  анна   сергеевна ", "ABB-01", 3.999))
-    print(f"format_record(('  сидорова  анна   сергеевна ', 'ABB-01', 3.999)): {result}")
+    result = format_record(("    хужамова   тасмина   музаффаровна ", "ABB-01", 3.999))
+    print(f"format_record(('  хужамова  тасмина  музаффаровна ', 'ABB-01', 3.999)): {result}")
 except Exception as e:
-    print(f"format_record(('  сидорова  анна   сергеевна ', 'ABB-01', 3.999)): {type(e).__name__} - {e}")
+    print(f"format_record(('  хужамова   тасмина   музаффаровна ', 'ABB-01', 3.999)): {type(e).__name__} - {e}")
 
 # Тест 4: ошибка - пустое ФИО
 try:
@@ -97,23 +97,17 @@ try:
 except Exception as e:
     print(f"format_record(('Иванов', 'BIVT-25', 4.6)): {type(e).__name__} - {e}")
 
-# Тест 8: ошибка - неверный тип данных (не кортеж)
-try:
-    result = format_record(["Иванов Иван", "BIVT-25", 4.6])
-    print(f"format_record(['Иванов Иван', 'BIVT-25', 4.6]): {result}")
-except Exception as e:
-    print(f"format_record(['Иванов Иван', 'BIVT-25', 4.6]): {type(e).__name__} - {e}")
 
-# Тест 9: ошибка - неверный тип GPA
+# Тест 8: ошибка - неверный тип GPA
 try:
     result = format_record(("Иванов Иван", "BIVT-25", "4.6"))
     print(f"format_record(('Иванов Иван', 'BIVT-25', '4.6')): {result}")
 except Exception as e:
     print(f"format_record(('Иванов Иван', 'BIVT-25', '4.6')): {type(e).__name__} - {e}")
 
-# Тест 10: нормальный случай с округлением GPA
+# Тест 9: нормальный случай с округлением GPA
 try:
-    result = format_record(("Смирнов Алексей", "IKBO-10", 3.456))
-    print(f"format_record(('Смирнов Алексей', 'IKBO-10', 3.456)): {result}")
+    result = format_record(("Хужамова Тасмина", "IKBO-10", 3.456))
+    print(f"format_record(('Хужамова Тасмина', 'IKBO-10', 3.456)): {result}")
 except Exception as e:
-    print(f"format_record(('Смирнов Алексей', 'IKBO-10', 3.456)): {type(e).__name__} - {e}")
+    print(f"format_record(('Хужамова Тасмина', 'IKBO-10', 3.456)): {type(e).__name__} - {e}")
