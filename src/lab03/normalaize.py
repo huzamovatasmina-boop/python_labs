@@ -34,4 +34,4 @@ texts = [
 
 for text in texts:
     result = normalize(text)
-    print(f"'{text}' -> '{result}'")
+    print(result)
