@@ -22,6 +22,16 @@ def normalize(text: str, *, casefold: bool = True, yo2e: bool = True) -> str:
     text=text.split()
     text=" ".join(text)
     return text
-text="Hello\r\nWorld"
-result=normalize(text)
-print(result)
+
+print("=== Тесты текста ===")
+texts = [
+    "Hello\r\nWorld",
+    "ПрИвЕт\nМИр\t", 
+    "ёжик, Ёлка",
+    "  двойные   пробелы  ",
+    "привет, мир! как дела?"
+]
+
+for text in texts:
+    result = normalize(text)
+    print(f"'{text}' -> '{result}'")
