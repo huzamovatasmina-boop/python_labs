@@ -130,7 +130,7 @@ vat (%): 20#   Задание 4: Конвертер минут в часы и м
 
 **Вывод:**
 
-![alt text](images/lab01/ex.06.png)
+![alt text](<images/lab01/ex.06.png>)
 
 **Студент:** Хужамова Тасмина Музаффаровна 
 **Группа:** [БИВТ-25-4]  
@@ -234,7 +234,7 @@ except TypeError as e:
 
 **Вывод**
 
-![alt text](images/lab02/ex.01.png)
+![alt text](<images/lab02/ex.01.png>)
 
 
 # Задание 2: Операции со списками
@@ -540,7 +540,9 @@ for text in texts:
     print(result)
 ```
 
-**Вывод:** ![alt text](<images/lab03/ex01.png>)
+**Вывод:** 
+
+![alt text](<images/lab03/1_normalaize.png>)
 
 
 **Файл:** `src/lab03/tokenize.py`
@@ -586,13 +588,246 @@ for text in texts:
     print(result)
 ```
 
-**Вывод:** ![alt text](<images/lab03/ex02.png>)
+**Вывод:** 
+
+![alt text](<images/lab03/2_tokenize.png>)
 
 **Файл:** `src/lab02/задание B.3.py`
 
-**Цель:** 
+``` python
 
 
-**Ввод в col_sums:**
+def count_freq(tokens: list[str]) -> dict[str, int]:
+    """
+    Подсчитывает, сколько раз каждое слово встречается в списке.
+
+    Args:
+        tokens: Список слов для подсчета
+
+    Returns:
+        Словарь, где ключ - слово, значение - количество вхождений
+
+    Examples:
+        >>> count_freq(["яблоко", "банан", "яблоко"])
+        {'яблоко': 2, 'банан': 1}
+
+        >>> count_freq(["да", "нет", "да", "может быть"])
+        {'да': 2, 'нет': 1, 'может быть': 1}
+    """
+    # Создаем пустой словарь для результатов
+    frequency_dict = {}
+
+    # Проходим по каждому слову в списке
+    for word in tokens:
+        if word not in frequency_dict:
+            # Если слова еще нет - добавляем со счетчиком 1
+            frequency_dict[word] = 1
+        else:
+            # Если слово уже есть - увеличиваем счетчик на 1
+            frequency_dict[word] += 1
+
+    return frequency_dict
+
+def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]: 
+    """Возвращает n наиболее часто встречающихся 
+    элементов из словаря частот.
+
+    Args:
+        freq: Словарь, где ключи - это элементы (например, слова), 
+        а значения - их частота встречаемости
+
+        n: количество самых частовстречающихся элементов, которые нужно вернуть.
+        По умолчанию равно 5.
+
+    Returns:
+        list[tuple[str, int]]: Список из `n` кортежей, 
+        каждый из которых содержит элемент
+        (строку) и его частоту (целое число), 
+        отсротированные в порядке убывания частоты.
+    
+    """
+    # Преобразуем словарь в список кортежей
+    items = list(freq.items())
+
+    # Сортируем по убыванию частоты, при равенстве - по алфавиту.lambda - ключ для сортировки по частотеб 
+    sorted_items = sorted(items,  key=lambda x: (-x[1], x[0]))
+
+    # Возвращаем первые n элементов
+    return sorted_items[:n]
+
+print("=== Тесты списка/словаря №1===")
+tokens = ["a","b","a","c","b","a"]
+result_for_count=count_freq(tokens)
+result_for_top=top_n(result_for_count, n=2)
+print("Словарь частот:", result_for_count)
+print("Топ-2 слов:", result_for_top)
+
+
+print("=== Тесты списка/словаря №2===")
+tokens = ["bb","aa","bb","aa","cc"]
+result_for_count=count_freq(tokens)
+result_for_top=top_n(result_for_count, n=2)
+print("Словарь частот:", result_for_count)
+print("Топ-2 слов:", result_for_top)
+
+```
 
 **Вывод:**
+
+![alt text](<images/lab03/3_count_freq.png>)
+
+# Задание test_stats
+
+# Ввод:
+
+``` python
+#!/usr/bin/env python3
+"""
+text_stats.py - скрипт для анализа текстовой статистики
+ЛР3 — Тексты и частоты слов
+Студент: Хужамова Тасмина Музаффаровна
+Группа: БИВТ-25-4
+"""
+
+import sys
+import os
+
+# Добавляем путь для импорта наших модулей
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+
+# Импортируем наши функции из библиотеки
+from text import normalize, tokenize, count_freq, top_n
+
+
+def text_stats(text: str, table_mode: bool = False) -> None:
+    """
+    Анализирует текст и выводит статистику по словам.
+    
+    Args:
+        text: Исходный текст для анализа
+        table_mode: Если True, выводит результаты в виде таблицы
+    """
+    # Проверяем, что текст не пустой
+    if not text or not text.strip():
+        print("Ошибка: текст пустой или содержит только пробелы")
+        return
+    
+    # 1. Нормализуем текст (приводим к нижнему регистру, убираем лишние пробелы)
+    norm_text = normalize(text)
+    
+    # 2. Разбиваем на отдельные слова (токены)
+    tokens = tokenize(norm_text)
+    
+    # 3. Подсчитываем частоту каждого слова
+    freq = count_freq(tokens)
+    
+    # 4. Получаем статистику
+    total_words = len(tokens)
+    unique_words = len(freq)
+    top_words = top_n(freq, n=5)
+    
+    # 5. Выводим результаты
+    print(f'Всего слов: {total_words}')
+    print(f'Уникальных слов: {unique_words}')
+    print('Топ-5:')
+    
+    if table_mode:
+        print_table_output(top_words)
+    else:
+        print_simple_output(top_words)
+
+
+def print_simple_output(top_words):
+    """
+    Простой вывод топ-слов в формате 'слово:частота'
+    
+    Args:
+        top_words: Список кортежей (слово, частота)
+    """
+    for word, count in top_words:
+        print(f'{word}:{count}')
+
+
+def print_table_output(top_words):
+    """
+    Красиво выровненный табличный вывод
+    
+    Args:
+        top_words: Список кортежей (слово, частота)
+    """
+    if not top_words:
+        print("Нет данных для отображения")
+        return
+    
+    # Находим максимальную длину слова для красивого выравнивания
+    max_word_len = max(len(word) for word, _ in top_words)
+    
+    # Заголовок таблицы
+    header = "слово".ljust(max_word_len) + " | частота"
+    separator = "-" * len(header)
+    
+    print(header)
+    print(separator)
+    
+    # Выводим данные таблицы
+    for word, count in top_words:
+        print(f"{word.ljust(max_word_len)} | {count}")
+
+
+def get_input_text():
+    """
+    Получает текст от пользователя разными способами
+    
+    Returns:
+        Введенный текст
+    """
+    # Проверяем, есть ли данные в stdin (pipe или перенаправление)
+    if not sys.stdin.isatty():  # Если данные приходят через pipe или перенаправление
+        return sys.stdin.read().strip()
+    
+    # Проверяем, есть ли аргументы командной строки
+    if len(sys.argv) > 1 and not sys.argv[1].startswith('--'):
+        # Читаем из файла: python text_stats.py filename.txt
+        try:
+            with open(sys.argv[1], 'r', encoding='utf-8') as f:
+                return f.read()
+        except FileNotFoundError:
+            print(f"Ошибка: файл {sys.argv[1]} не найден")
+            return None
+    else:
+        # Интерактивный ввод
+        print("Введите текст для анализа (можно несколько строк):")
+        print("Для завершения ввода нажмите Ctrl+D (Linux/Mac) или Ctrl+Z (Windows):")
+        
+        try:
+            return sys.stdin.read().strip()
+        except EOFError:
+            print("\nВвод завершен.")
+            return None
+
+
+def main():
+    """
+    Основная функция - получает текст и запускает анализ
+    """
+    # Проверяем, включен ли табличный режим
+    table_mode = '--table' in sys.argv or os.getenv('TEXT_STATS_TABLE', '0') == '1'
+    
+    # Получаем текст
+    text = get_input_text()
+    
+    if not text:
+        print("Ошибка: текст не может быть пустым")
+        return
+    
+    # Запускаем анализ
+    text_stats(text, table_mode)
+
+
+if __name__ == '__main__':
+    main()
+```
+
+# Вывод
+
+![alt text](<images/lab03/test_stats.png>)
