@@ -24,6 +24,11 @@ def text_stats(text: str, table_mode: bool = False) -> None:
         text: Исходный текст для анализа
         table_mode: Если True, выводит результаты в виде таблицы
     """
+    # Проверяем, что текст не пустой
+    if not text or not text.strip():
+        print("Ошибка: текст пустой или содержит только пробелы")
+        return
+    
     # 1. Нормализуем текст (приводим к нижнему регистру, убираем лишние пробелы)
     norm_text = normalize(text)
     
@@ -93,8 +98,12 @@ def get_input_text():
     Returns:
         Введенный текст
     """
+    # Проверяем, есть ли данные в stdin (pipe или перенаправление)
+    if not sys.stdin.isatty():  # Если данные приходят через pipe или перенаправление
+        return sys.stdin.read().strip()
+    
     # Проверяем, есть ли аргументы командной строки
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1 and not sys.argv[1].startswith('--'):
         # Читаем из файла: python text_stats.py filename.txt
         try:
             with open(sys.argv[1], 'r', encoding='utf-8') as f:
