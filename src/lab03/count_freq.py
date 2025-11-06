@@ -49,8 +49,26 @@ def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]:
         отсротированные в порядке убывания частоты.
     
     """
+    # Преобразуем словарь в список кортежей
+    items = list(freq.items())
+
+    # Сортируем по убыванию частоты, при равенстве - по алфавиту.lambda - ключ для сортировки по частотеб 
+    sorted_items = sorted(items,  key=lambda x: (-x[1], x[0]))
+
+    # Возвращаем первые n элементов
+    return sorted_items[:n]
+
+print("=== Тесты списка/словаря №1===")
+tokens = ["a","b","a","c","b","a"]
+result_for_count=count_freq(tokens)
+result_for_top=top_n(result_for_count, n=2)
+print("Словарь частот:", result_for_count)
+print("Топ-2 слов:", result_for_top)
 
 
-tokens=["a","b","a","c","b","a"]
-result=count_freq(tokens)
-print(result)
+print("=== Тесты списка/словаря №2===")
+tokens = ["bb","aa","bb","aa","cc"]
+result_for_count=count_freq(tokens)
+result_for_top=top_n(result_for_count, n=2)
+print("Словарь частот:", result_for_count)
+print("Топ-2 слов:", result_for_top)

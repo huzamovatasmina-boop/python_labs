@@ -129,6 +129,7 @@ vat (%): 20#   Задание 4: Конвертер минут в часы и м
 Алексеев Алексей 17 True
 
 **Вывод:**
+
 ![alt text](images/lab01/ex.06.png)
 
 **Студент:** Хужамова Тасмина Музаффаровна 
@@ -232,6 +233,7 @@ except TypeError as e:
 ```
 
 **Вывод**
+
 ![alt text](images/lab02/ex.01.png)
 
 
@@ -359,6 +361,7 @@ print("row_sums([[-1, 1], [10, -10]]):", row_sums([[-1, 1], [10, -10]]))  # [0, 
 print("col_sums([[-1, 1], [10, -10]]):", col_sums([[-1, 1], [10, -10]]))  # [9, -9]
 ```
 **Вывод:**
+
 ![alt text](<images/lab02/ex.02.png>)
 #   Задание C: tuples.py
 
@@ -478,13 +481,14 @@ try:
     print(f"format_record(('Хужамова Тасмина', 'IKBO-10', 3.456)): {result}")
 except Exception as e:
     print(f"format_record(('Хужамова Тасмина', 'IKBO-10', 3.456)): {type(e).__name__} - {e}")
-    ```
+```
 
 **Вывод:**
+
 ![alt text](<images/lab02/ex.03.png>)
 **Студент:** Хужамова Тасмина Музаффаровна
 **Группа:** [БИВТ-25-4]  
-**Преподаватель:** []
+**Преподаватель:** [Замурагин И.М.]
 
 
 # Лабораторная работа №3
@@ -535,10 +539,12 @@ for text in texts:
     result = normalize(text)
     print(result)
 ```
+
 **Вывод:** ![alt text](<images/lab03/ex01.png>)
 
 
 **Файл:** `src/lab03/tokenize.py`
+
 ``` python
 import re
 
