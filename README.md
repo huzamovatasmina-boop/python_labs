@@ -831,3 +831,443 @@ if __name__ == '__main__':
 # Вывод
 
 ![alt text](<images/lab03/test_stats.png>)
+
+
+# Лабораторная работа №4
+# задание А
+
+**Файл text_report:**
+``` python
+#!/usr/bin/env python3
+"""
+text_report.py - скрипт для генерации отчетов по текстовой статистике
+ЛР4 — Файлы: TXT/CSV и отчёты
+
+Этот скрипт анализирует текстовые файлы: подсчитывает сколько раз каждое слово встречается,
+и сохраняет результаты в CSV файл. Также показывает статистику в консоли.
+
+Пример использования:
+    python src/lab04/text_report.py                    # Базовая версия
+    python src/lab04/text_report.py --table            # С красивой таблицей
+    python src/lab04/text_report.py --input my.txt     # Свои файлы
+"""
+
+# Импортируем стандартные модули Python
+import sys        # Для работы с системными функциями (выход из программы)
+import argparse   # Для обработки аргументов командной строки (--input, --output и т.д.)
+from pathlib import Path  # Для удобной работы с путями файлов и папок
+
+"""
+ВНИМАНИЕ: следующий блок кода нужен чтобы Python мог найти наши собственные модули
+в папке src/lib/ и src/lab04/
+"""
+# Получаем путь к родительской папке (src/) и добавляем его в sys.path
+# Это нужно чтобы импортировать наши собственные модули
+sys.path.append(str(Path(__file__).parent.parent))
+
+# Импортируем наши собственные функции из других файлов
+from lib.text import normalize, tokenize, count_freq, top_n        # Функции из ЛР3 для работы с текстом
+from lab04.io_txt_csv import read_text, write_csv                 # Функции из этой ЛР для работы с файлами
+
+
+def print_table_output(top_words: list[tuple[str, int]]) -> None:
+    """
+    Выводит красивую таблицу с результатами в консоль.
+    
+    Эта функция берет список слов с частотами и выводит их в виде аккуратной таблицы
+    с выровненными колонками.
+    
+    Args:
+        top_words (list[tuple[str, int]]): Список кортежей в формате (слово, частота)
+            Пример: [('привет', 2), ('мир', 1), ('текст', 1)]
+    
+    Returns:
+        None: Функция только печатает в консоль, ничего не возвращает
+    
+    Пример вывода:
+        слово      | частота
+        -------------------
+        привет     | 2
+        мир        | 1
+        текст      | 1
+    """
+    # Проверяем, есть ли данные для вывода
+    if not top_words:
+        print("Нет данных для отображения")
+        return
+    
+    """
+    Шаг 1: Находим самую длинную строку среди всех слов
+    Это нужно чтобы сделать красивую таблицу с ровными колонками
+    """
+    # Проходим по всем словам и находим максимальную длину
+    max_word_len = max(len(word) for word, _ in top_words)
+    
+    """
+    Шаг 2: Создаем заголовок таблицы
+    ljust() добавляет пробелы справа до нужной длины, чтобы выровнять текст
+    """
+    header = "слово".ljust(max_word_len) + " | частота"
+    
+    # Создаем разделительную линию под заголовком
+    separator = "-" * len(header)  # Строка из символов '-' той же длины что и заголовок
+    
+    """
+    Шаг 3: Выводим таблицу
+    """
+    print(header)      # Заголовок: "слово      | частота"
+    print(separator)   # Разделитель: "-------------------"
+    
+    # Выводим каждую строку данных
+    for word, count in top_words:
+        # ljust() выравнивает слово по левому краю, добавляя пробелы справа
+        print(f"{word.ljust(max_word_len)} | {count}")
+
+
+def analyze_text(text: str) -> tuple[int, int, list[tuple[str, int]]]:
+    """
+    Анализирует текст и возвращает статистику по словам.
+    
+    Эта функция является "сердцем" программы - она принимает текст и возвращает
+    всю необходимую статистику: общее количество слов, количество уникальных слов,
+    и список самых частых слов.
+    
+    Args:
+        text (str): Исходный текст для анализа
+        
+    Returns:
+        tuple: Кортеж из трех элементов:
+            - total_words (int): Общее количество слов в тексте
+            - unique_words (int): Количество уникальных слов (без повторений)
+            - top_words (list): Список кортежей (слово, частота) для топ-5 слов
+    
+    Процесс анализа:
+        1. Нормализация: приводим текст к нижнему регистру, убираем лишние пробелы
+        2. Токенизация: разбиваем текст на отдельные слова
+        3. Подсчет частот: считаем сколько раз каждое слово встречается
+        4. Сортировка: находим 5 самых частых слов
+    """
+    # Шаг 1: Нормализуем текст (приводим к нижнему регистру, убираем лишние пробелы)
+    normalized_text = normalize(text)
+    
+    # Шаг 2: Разбиваем нормализованный текст на отдельные слова (токены)
+    tokens = tokenize(normalized_text)
+    
+    # Шаг 3: Подсчитываем частоту каждого слова (сколько раз встречается)
+    frequency_dict = count_freq(tokens)
+    
+    # Шаг 4: Находим 5 самых частых слов
+    top_5_words = top_n(frequency_dict, 5)
+    
+    # Возвращаем результаты
+    total_word_count = len(tokens)           # Всего слов (с повторениями)
+    unique_word_count = len(frequency_dict)  # Уникальных слов (без повторений)
+    
+    return total_word_count, unique_word_count, top_5_words
+
+
+def generate_report(input_file: str, output_file: str, encoding: str = "utf-8", table_output: bool = False) -> None:
+    """
+    Основная функция генерации отчета - координирует всю работу.
+    
+    Эта функция:
+      1. Читает текст из файла
+      2. Анализирует его
+      3. Сохраняет полные результаты в CSV
+      4. Выводит краткую статистику в консоль
+    
+    Args:
+        input_file (str): Путь к файлу с текстом для анализа
+        output_file (str): Путь куда сохранить CSV отчет
+        encoding (str): Кодировка входного файла (utf-8, cp1251 и т.д.)
+        table_output (bool): Если True - выводит красивую таблицу, иначе простой список
+    
+    Raises:
+        FileNotFoundError: Если входной файл не существует
+        UnicodeDecodeError: Если неправильно указана кодировка файла
+    """
+    try:
+        """
+        БЛОК 1: ЧТЕНИЕ ФАЙЛА
+        """
+        print(f"Читаем файл: {input_file}")
+        text_content = read_text(input_file, encoding)
+        
+        # Проверяем что файл не пустой
+        if not text_content.strip():
+            print("Внимание: файл пустой или содержит только пробелы")
+        
+        """
+        БЛОК 2: АНАЛИЗ ТЕКСТА
+        """
+        print("Анализируем текст...")
+        total_words, unique_words, top_words = analyze_text(text_content)
+        
+        """
+        БЛОК 3: ПОДГОТОВКА ДАННЫХ ДЛЯ CSV
+        Здесь мы заново получаем частоты всех слов и сортируем их
+        для сохранения в CSV файл
+        """
+        # Получаем частоты всех слов (не только топ-5)
+        all_frequencies = count_freq(tokenize(normalize(text_content)))
+        
+        # Сортируем слова по убыванию частоты, при равенстве - по алфавиту
+        sorted_all_words = sorted(all_frequencies.items(), key=lambda x: (-x[1], x[0]))
+        
+        # Преобразуем в формат для CSV: список кортежей (слово, количество)
+        csv_data = [(word, count) for word, count in sorted_all_words]
+        
+        """
+        БЛОК 4: СОХРАНЕНИЕ CSV ОТЧЕТА
+        """
+        print(f"Сохраняем отчет...")
+        write_csv(csv_data, output_file, header=("word", "count"))
+        
+        """
+        БЛОК 5: ВЫВОД СТАТИСТИКИ В КОНСОЛЬ
+        """
+        print("\nРЕЗУЛЬТАТЫ АНАЛИЗА:")
+        print(f"   Всего слов: {total_words}")
+        print(f"   Уникальных слов: {unique_words}")
+        print("   Топ-5 самых частых слов:")
+        
+        if table_output:
+            # ВЫВОД В ВИДЕ КРАСИВОЙ ТАБЛИЦЫ
+            print_table_output(top_words)
+        else:
+            # ПРОСТОЙ ВЫВОД (как было раньше)
+            for word, count in top_words:
+                print(f"   {word}: {count}")
+            
+        print(f"\nПолный отчет сохранен в: {output_file}")
+        
+    except FileNotFoundError:
+        # Обработка ошибки: файл не найден
+        print(f"Ошибка: файл '{input_file}' не найден!")
+        print("   Проверьте путь к файлу и его наличие")
+        sys.exit(1)  # Завершаем программу с кодом ошибки 1
+        
+    except UnicodeDecodeError:
+        # Обработка ошибки: неправильная кодировка
+        print(f"Ошибка: не удалось прочитать файл '{input_file}' в кодировке '{encoding}'")
+        print("   Возможные решения:")
+        print("   - Укажите правильную кодировку: --encoding cp1251")
+        print("   - Преобразуйте файл в UTF-8")
+        sys.exit(1)  # Завершаем программу с кодом ошибки 1
+
+
+def main() -> None:
+    """
+    Главная функция программы - точка входа.
+    
+    Эта функция:
+      1. Настраивает парсер аргументов командной строки
+      2. Читает аргументы которые ввел пользователь
+      3. Запускает процесс генерации отчета
+    
+    Аргументы командной строки:
+      --input, -i    : Путь к входному файлу
+      --output, -o   : Путь для сохранения отчета  
+      --encoding, -e : Кодировка файла
+      --table, -t    : Включить красивый табличный вывод
+    """
+    """
+    Шаг 1: СОЗДАЕМ ПАРСЕР АРГУМЕНТОВ
+    ArgumentParser - это "умный" обработчик который сам генерирует справку
+    и проверяет правильность аргументов
+    """
+    parser = argparse.ArgumentParser(
+        description="Анализирует текстовый файл и генерирует отчет о частоте слов",
+        epilog="Примеры использования:\n"
+               "  python text_report.py                    # Базовая версия\n"
+               "  python text_report.py --table            # С красивой таблицей\n"
+               "  python text_report.py -i story.txt -t    # Анализ story.txt с таблицей"
+    )
+    
+    """
+    Шаг 2: ДОБАВЛЯЕМ АРГУМЕНТЫ
+    Каждый add_argument добавляет один параметр который можно указать в командной строке
+    """
+    
+    # Аргумент для входного файла
+    parser.add_argument(
+        '--input',                   # Длинное имя: --input
+        '-i',                        # Короткое имя: -i
+        default='data/lab04/input.txt',  # Значение по умолчанию если аргумент не указан
+        help='Путь к файлу с текстом для анализа'  # Описание для справки
+    )
+    
+    # Аргумент для выходного файла
+    parser.add_argument(
+        '--output', 
+        '-o',
+        default='data/lab04/report.csv',
+        help='Путь для сохранения CSV отчета с полной статистикой'
+    )
+    
+    # Аргумент для кодировки файла
+    parser.add_argument(
+        '--encoding',
+        '-e', 
+        default='utf-8',
+        help='Кодировка входного файла (utf-8, cp1251, koi8-r и т.д.)'
+    )
+    
+    # Аргумент для табличного вывода (флаг - либо есть, либо нет)
+    parser.add_argument(
+        '--table',
+        '-t',
+        action='store_true',  # Особый тип аргумента - флаг (True если указан, False если нет)
+        help='Выводить топ-5 слов в виде красивой таблицы'
+    )
+    
+    """
+    Шаг 3: ЧИТАЕМ АРГУМЕНТЫ ИЗ КОМАНДНОЙ СТРОКИ
+    parse_args() анализирует sys.argv (аргументы которые передали при запуске)
+    и возвращает объект с значениями всех аргументов
+    """
+    args = parser.parse_args()
+    
+    """
+    Шаг 4: ЗАПУСКАЕМ ГЕНЕРАЦИЮ ОТЧЕТА
+    Передаем все аргументы в основную функцию
+    """
+    print("Запуск анализа текста...")
+    print(f"   Входной файл: {args.input}")
+    print(f"   Выходной файл: {args.output}") 
+    print(f"   Кодировка: {args.encoding}")
+    print(f"   Табличный вывод: {'ВКЛЮЧЕН' if args.table else 'выключен'}")
+    print()
+    
+    generate_report(args.input, args.output, args.encoding, args.table)
+
+
+"""
+ЭТА СТРОКА ОЧЕНЬ ВАЖНА!
+Она означает: "запускать функцию main() только если этот файл запущен напрямую,
+а не импортирован как модуль в другой программе"
+
+Это стандартная практика в Python - она позволяет использовать файл и как скрипт,
+и как модуль который можно импортировать в других программах
+"""
+if __name__ == "__main__":
+    main()
+```
+
+**Файл io_txt_csv:**
+``` python
+"""
+Модуль для работы с текстовыми и CSV файлами.
+ЛР4 — Файлы: TXT/CSV и отчёты
+"""
+
+import csv
+from pathlib import Path
+from typing import Union, Iterable, Sequence
+
+
+def read_text(path: Union[str, Path], encoding: str = "utf-8") -> str:
+    """
+    Читает текстовый файл и возвращает его содержимое как строку.
+    
+    Args:
+        path: Путь к файлу (строка или Path объект)
+        encoding: Кодировка файла (по умолчанию UTF-8)
+        
+    Returns:
+        Содержимое файла как строка
+        
+    Raises:
+        FileNotFoundError: Если файл не существует
+        UnicodeDecodeError: Если неправильная кодировка
+        
+    Examples:
+        >>> text = read_text("data/input.txt")
+        >>> text = read_text("data/file.txt", encoding="cp1251")
+    """
+    # Преобразуем в Path объект для удобства
+    file_path = Path(path)
+    
+    # Читаем файл с указанной кодировкой
+    # Если файла нет - выбросится FileNotFoundError
+    # Если кодировка неправильная - UnicodeDecodeError
+    return file_path.read_text(encoding=encoding)
+
+
+def write_csv(rows: Iterable[Sequence], path: Union[str, Path], 
+              header: tuple[str, ...] = None) -> None:
+    """
+    Записывает данные в CSV файл.
+    
+    Args:
+        rows: Итерируемый объект со строками данных
+        path: Путь для сохранения CSV файла
+        header: Заголовок таблицы (опционально)
+        
+    Raises:
+        ValueError: Если строки имеют разную длину
+        
+    Examples:
+        >>> data = [("word", "count"), ("привет", 2)]
+        >>> write_csv(data, "report.csv", header=("word", "count"))
+    """
+    file_path = Path(path)
+    rows_list = list(rows)  # Преобразуем в список для проверки
+    
+    # Проверяем, что все строки одинаковой длины
+    if rows_list:
+        first_len = len(rows_list[0])
+        for i, row in enumerate(rows_list):
+            if len(row) != first_len:
+                raise ValueError(f"Строка {i} имеет длину {len(row)}, ожидалась {first_len}")
+    
+    # Создаем родительские папки если их нет
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Записываем в CSV
+    with file_path.open('w', encoding='utf-8', newline='') as file:
+        writer = csv.writer(file)
+        
+        # Записываем заголовок если есть
+        if header is not None:
+            writer.writerow(header)
+        
+        # Записываем данные
+        for row in rows_list:
+            writer.writerow(row)
+
+
+def ensure_parent_dir(path: Union[str, Path]) -> None:
+    """
+    Создает родительские директории если их нет.
+    
+    Args:
+        path: Путь к файлу или директории
+        
+    Examples:
+        >>> ensure_parent_dir("data/reports/final.csv")
+        # Создаст папки data/ и data/reports/ если их нет
+    """
+    file_path = Path(path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+```
+
+# Тесты и выводы
+
+**Обычный вывод**
+![alt text](<images/lab04/ordinary.png>)
+
+**Табличный вывод**
+![alt text](<images/lab04/table.png>)
+
+**Вывод для файла а**
+![alt text](<images/lab04/test_a.png>)
+
+**Вывод для файла b**
+![alt text](<images/lab04/test_b.png>)
+
+**Тест ошибок**
+![alt text](<images/lab04/test_error.png>)
+
+**Вывод справки - help**
+![alt text](<images/lab04/test_help.png>)
