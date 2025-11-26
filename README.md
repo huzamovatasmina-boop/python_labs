@@ -1271,3 +1271,227 @@ def ensure_parent_dir(path: Union[str, Path]) -> None:
 
 **Вывод справки - help**
 ![alt text](<images/lab04/test_help.png>)
+
+
+# Лабораторная работа №5
+# JSON и конвертации (JSON↔CSV, CSV→XLSX): Техническое задание
+**Цель:**
+Разобраться с форматом JSON, сериализацией/десериализацией и табличными конвертациями
+
+**Файл:** json_csv.py
+
+``` python
+"""
+Модуль для конвертации между JSON и CSV форматами.
+ЛР5 — JSON и конвертации
+"""
+
+import json
+import csv
+from pathlib import Path
+
+
+def json_to_csv(json_path: str, csv_path: str) -> None:
+    """
+    Конвертирует JSON файл в CSV формат.
+    
+    Поддерживает JSON файлы содержащие список словарей.
+    Например: [{"name": "Alice", "age": 25}, {"name": "Bob", "age": 30}]
+    
+    Args:
+        json_path: Путь к исходному JSON файлу
+        csv_path: Путь для сохранения CSV файла
+        
+    Raises:
+        FileNotFoundError: Если JSON файл не существует
+        ValueError: Если JSON пустой, не список или содержит не словари
+    """
+    # Преобразуем пути в Path объекты
+    json_file = Path(json_path)
+    csv_file = Path(csv_path)
+    
+    # Проверяем существование JSON файла
+    if not json_file.exists():
+        raise FileNotFoundError(f"JSON файл не найден: {json_path}")
+    
+    # Читаем JSON файл
+    with json_file.open('r', encoding='utf-8') as jf:
+        try:
+            data = json.load(jf)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Ошибка чтения JSON: {e}")
+    
+    # Валидация данных
+    if not data:
+        raise ValueError("Пустой JSON файл")
+    
+    if not isinstance(data, list):
+        raise ValueError("JSON должен содержать список")
+    
+    if not all(isinstance(item, dict) for item in data):
+        raise ValueError("Все элементы JSON должны быть словарями")
+    
+    # Создаем родительские папки если их нет
+    csv_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Получаем все уникальные ключи из всех словарей
+    all_keys = set()
+    for item in data:
+        all_keys.update(item.keys())
+    
+    # Сортируем ключи по алфавиту для единообразия
+    fieldnames = sorted(all_keys)
+    
+    # Записываем CSV
+    with csv_file.open('w', encoding='utf-8', newline='') as cf:
+        writer = csv.DictWriter(cf, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for item in data:
+            # Заполняем отсутствующие поля пустыми строками
+            row = {key: item.get(key, '') for key in fieldnames}
+            writer.writerow(row)
+
+
+def csv_to_json(csv_path: str, json_path: str) -> None:
+    """
+    Конвертирует CSV файл в JSON формат.
+    
+    Преобразует CSV в список словарей, где первая строка - заголовки.
+    
+    Args:
+        csv_path: Путь к исходному CSV файлу
+        json_path: Путь для сохранения JSON файла
+        
+    Raises:
+        FileNotFoundError: Если CSV файл не существует
+        ValueError: Если CSV файл пустой или не имеет заголовка
+    """
+    # Преобразуем пути в Path объекты
+    csv_file = Path(csv_path)
+    json_file = Path(json_path)
+    
+    # Проверяем существование CSV файла
+    if not csv_file.exists():
+        raise FileNotFoundError(f"CSV файл не найден: {csv_path}")
+    
+    # Читаем CSV файл
+    with csv_file.open('r', encoding='utf-8') as cf:
+        reader = csv.DictReader(cf)
+        
+        # Преобразуем в список
+        data = list(reader)
+    
+    # Валидация данных
+    if not data:
+        raise ValueError("CSV файл пустой или не содержит данных")
+    
+    # Создаем родительские папки если их нет
+    json_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Записываем JSON
+    with json_file.open('w', encoding='utf-8') as jf:
+        json.dump(data, jf, ensure_ascii=False, indent=2)
+
+```
+**Вывод:**
+
+![alt text](<images/lab05/csv-json.png>)
+
+**Вывод:**
+
+![alt text](<images/lab05/json-csv.png>)
+
+
+**Файл:** csv_xlsx.py
+
+``` python
+"""
+Модуль для конвертации CSV в XLSX формат.
+ЛР5 — JSON и конвертации
+"""
+
+import csv
+from pathlib import Path
+
+# Импортируем openpyxl (внешняя библиотека)
+try:
+    from openpyxl import Workbook
+    from openpyxl.utils import get_column_letter
+except ImportError:
+    raise ImportError("Для работы этого модуля установите openpyxl: pip install openpyxl")
+
+
+def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
+    """
+    Конвертирует CSV файл в XLSX формат (Excel).
+    
+    Автоматически подбирает ширину колонок по содержимому.
+    
+    Args:
+        csv_path: Путь к исходному CSV файлу
+        xlsx_path: Путь для сохранения XLSX файла
+        
+    Raises:
+        FileNotFoundError: Если CSV файл не существует
+        ValueError: Если CSV файл пустой
+    """
+    # Преобразуем пути в Path объекты
+    csv_file = Path(csv_path)
+    xlsx_file = Path(xlsx_path)
+    
+    # Проверяем существование CSV файла
+    if not csv_file.exists():
+        raise FileNotFoundError(f"CSV файл не найден: {csv_path}")
+    
+    # Читаем CSV файл
+    with csv_file.open('r', encoding='utf-8') as cf:
+        reader = csv.reader(cf)
+        rows = list(reader)
+    
+    # Валидация данных
+    if not rows:
+        raise ValueError("CSV файл пустой")
+    
+    # Создаем родительские папки если их нет
+    xlsx_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Создаем новую книгу Excel
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Sheet1"
+    
+    # Записываем данные из CSV в Excel
+    for row in rows:
+        sheet.append(row)
+    
+    # Настраиваем авто-ширину колонок
+    for column_cells in sheet.columns:
+        # Получаем максимальную длину текста в колонке
+        max_length = 0
+        column_letter = get_column_letter(column_cells[0].column)
+        
+        for cell in column_cells:
+            try:
+                # Проверяем длину текста в ячейке
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        
+        # Устанавливаем ширину колонки (минимум 8 символов)
+        adjusted_width = max(max_length + 2, 8)
+        sheet.column_dimensions[column_letter].width = adjusted_width
+    
+    # Сохраняем XLSX файл
+    workbook.save(xlsx_file)
+
+```
+**Вывод:**
+
+![alt text](<images/lab05/peoplexlsx.png>)
+
+**Расположение файлов и папок в системе:**
+
+
+![alt text](<images/lab05/x-.png>)
