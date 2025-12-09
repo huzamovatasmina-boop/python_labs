@@ -1,7 +1,25 @@
 # src/lab06/cli_text.py
+# src/lab06/cli_text.py
 import argparse
 import sys
 from pathlib import Path
+
+def read_and_tokenize(filepath: str):
+    """
+    Читает файл и разбивает на слова (токены).
+    """
+    with open(filepath, 'r', encoding='utf-8') as f:
+        text = f.read()
+    
+    # Приводим к нижнему регистру и разбиваем на слова
+    text = text.lower()
+    # Убираем пунктуацию и разбиваем на слова
+    import string
+    for char in string.punctuation:
+        text = text.replace(char, ' ')
+    
+    tokens = text.split()
+    return tokens
 
 def main():
     parser = argparse.ArgumentParser(
@@ -35,11 +53,20 @@ def main():
                         print(line, end='')
                         
         elif args.command == "stats":
-            # Импортируем функцию из lab03
-            from src.lab03.text_stats import calculate_word_frequency  # предположительное имя функции
-            result = calculate_word_frequency(args.input, args.top)
+            # Импортируем функции из lab03
+            from src.lab03.text_stats import count_freq, top_n
+            
+            # Читаем файл и получаем токены
+            tokens = read_and_tokenize(args.input)
+            
+            # Подсчитываем частоту
+            frequency = count_freq(tokens)
+            
+            # Получаем топ-N слов
+            top_words = top_n(frequency, args.top)
+            
             print(f"Топ-{args.top} слов в файле {args.input}:")
-            for word, count in result:
+            for word, count in top_words:
                 print(f"  {word}: {count}")
                 
     except FileNotFoundError:
