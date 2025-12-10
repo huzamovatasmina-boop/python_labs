@@ -1,8 +1,10 @@
-import pytest
-from src.lab03.text_stats import count_freq, top_n
+import sys
+import os
 
-# Для normalize и tokenize, если они есть
-# from src.lib.text import normalize, tokenize
+# Добавляем корневую папку в путь Python
+sys.path.insert(0, os.path.abspath('.'))
+
+from src.lab03.text_stats import count_freq, top_n
 
 def test_count_freq_basic():
     """Тест базовой функции подсчёта частот"""
@@ -60,20 +62,3 @@ def test_top_n_default():
     result = top_n(freq)  # default n=5
     assert len(result) == 5
     assert result[0] == ("f", 6)
-
-# Если у тебя есть функции normalize и tokenize
-# @pytest.mark.parametrize("input_text,expected", [
-#     ("Привет МИР!", "привет мир"),
-#     ("  много   пробелов  ", "много пробелов"),
-#     ("", ""),
-# ])
-# def test_normalize(input_text, expected):
-#     assert normalize(input_text) == expected
-
-# @pytest.mark.parametrize("input_text,expected", [
-#     ("hello world", ["hello", "world"]),
-#     ("раз,два,три", ["раз", "два", "три"]),
-#     ("", []),
-# ])
-# def test_tokenize(input_text, expected):
-#     assert tokenize(input_text) == expected

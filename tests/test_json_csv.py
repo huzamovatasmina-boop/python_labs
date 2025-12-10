@@ -1,8 +1,12 @@
 import pytest
 import json
 import csv
-import tempfile
-from pathlib import Path
+import sys
+import os
+
+# Добавляем корневую папку в путь Python
+sys.path.insert(0, os.path.abspath('.'))
+
 from src.lab05.json_csv import json_to_csv, csv_to_json
 
 def test_json_to_csv_basic(tmp_path):
