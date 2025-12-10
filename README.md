@@ -1500,39 +1500,114 @@ def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
 # Лабораторная работа №6
 # cli_convert:
 ``` python
-# src/lab06/cli_convert.py
+"""
+Командный интерфейс для конвертации данных между форматами.
+
+Модуль предоставляет CLI-команды для конвертации:
+- json2csv: JSON → CSV
+- csv2json: CSV → JSON  
+- csv2xlsx: CSV → XLSX
+
+Использование:
+    python -m src.lab06.cli_convert <команда> --in <входной_файл> --out <выходной_файл>
+
+Примеры:
+    python -m src.lab06.cli_convert json2csv --in data/samples/people.json --out data/out/people.csv
+    python -m src.lab06.cli_convert csv2json --in data/samples/people.csv --out data/out/people.json
+    python -m src.lab06.cli_convert csv2xlsx --in data/samples/people.csv --out data/out/people.xlsx
+"""
+
 import argparse
 import sys
 from pathlib import Path
 
+
 def main():
+    """
+    Основная функция CLI-конвертера.
+    
+    Обрабатывает аргументы командной строки и вызывает соответствующие
+    функции конвертации из модуля lab05.
+    """
+    # Создаем парсер аргументов с описанием программы
     parser = argparse.ArgumentParser(
-        description="Конвертер данных между форматами JSON, CSV, XLSX"
+        description="Конвертер данных между форматами JSON, CSV, XLSX",
+        epilog="Примеры использования:\n"
+               "  python -m src.lab06.cli_convert json2csv --in input.json --out output.csv\n"
+               "  python -m src.lab06.cli_convert csv2json --in input.csv --out output.json\n"
+               "  python -m src.lab06.cli_convert csv2xlsx --in input.csv --out output.xlsx"
     )
-    subparsers = parser.add_subparsers(dest="command", help="Доступные команды")
     
-    # json2csv команда
-    json2csv_parser = subparsers.add_parser("json2csv", help="Конвертировать JSON в CSV")
-    json2csv_parser.add_argument("--in", dest="input", required=True, help="Входной JSON файл")
-    json2csv_parser.add_argument("--out", dest="output", required=True, help="Выходной CSV файл")
+    # Добавляем подпарсеры для разных команд
+    subparsers = parser.add_subparsers(
+        dest="command", 
+        help="Доступные команды конвертации"
+    )
     
-    # csv2json команда  
-    csv2json_parser = subparsers.add_parser("csv2json", help="Конвертировать CSV в JSON")
-    csv2json_parser.add_argument("--in", dest="input", required=True, help="Входной CSV файл")
-    csv2json_parser.add_argument("--out", dest="output", required=True, help="Выходной JSON файл")
+    # Команда json2csv
+    json2csv_parser = subparsers.add_parser(
+        "json2csv", 
+        help="Конвертировать JSON файл в CSV формат"
+    )
+    json2csv_parser.add_argument(
+        "--in", 
+        dest="input", 
+        required=True,
+        help="Путь к входному JSON файлу (например: data/samples/people.json)"
+    )
+    json2csv_parser.add_argument(
+        "--out", 
+        dest="output", 
+        required=True,
+        help="Путь для сохранения CSV файла (например: data/out/people.csv)"
+    )
     
-    # csv2xlsx команда
-    csv2xlsx_parser = subparsers.add_parser("csv2xlsx", help="Конвертировать CSV в XLSX")
-    csv2xlsx_parser.add_argument("--in", dest="input", required=True, help="Входной CSV файл")
-    csv2xlsx_parser.add_argument("--out", dest="output", required=True, help="Выходной XLSX файл")
+    # Команда csv2json
+    csv2json_parser = subparsers.add_parser(
+        "csv2json", 
+        help="Конвертировать CSV файл в JSON формат"
+    )
+    csv2json_parser.add_argument(
+        "--in", 
+        dest="input", 
+        required=True,
+        help="Путь к входному CSV файлу (например: data/samples/people.csv)"
+    )
+    csv2json_parser.add_argument(
+        "--out", 
+        dest="output", 
+        required=True,
+        help="Путь для сохранения JSON файла (например: data/out/people.json)"
+    )
     
+    # Команда csv2xlsx
+    csv2xlsx_parser = subparsers.add_parser(
+        "csv2xlsx", 
+        help="Конвертировать CSV файл в Excel (XLSX) формат"
+    )
+    csv2xlsx_parser.add_argument(
+        "--in", 
+        dest="input", 
+        required=True,
+        help="Путь к входному CSV файлу (например: data/samples/people.csv)"
+    )
+    csv2xlsx_parser.add_argument(
+        "--out", 
+        dest="output", 
+        required=True,
+        help="Путь для сохранения XLSX файла (например: data/out/people.xlsx)"
+    )
+    
+    # Парсим аргументы командной строки
     args = parser.parse_args()
     
+    # Если команда не указана, выводим справку
     if not args.command:
         parser.print_help()
         return
     
     try:
+        # Выполняем соответствующую команду
         if args.command == "json2csv":
             from src.lab05.json_csv import json_to_csv
             json_to_csv(args.input, args.output)
@@ -1549,11 +1624,18 @@ def main():
             print(f"✅ Успешно конвертирован {args.input} → {args.output}")
             
     except FileNotFoundError as e:
+        # Обработка ошибки отсутствия файла
         print(f"❌ Ошибка: файл не найден - {e}")
         sys.exit(1)
-    except Exception as e:
-        print(f"❌ Ошибка при конвертации: {e}")
+    except ValueError as e:
+        # Обработка ошибок валидации
+        print(f"❌ Ошибка: неверные данные - {e}")
         sys.exit(1)
+    except Exception as e:
+        # Обработка всех остальных ошибок
+        print(f"❌ Неожиданная ошибка: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
@@ -1563,82 +1645,216 @@ if __name__ == "__main__":
 
 # cli_text:
 ``` python
-# src/lab06/cli_text.py
+"""
+Командный интерфейс для работы с текстовыми файлами.
+
+Модуль предоставляет CLI-команды для:
+- Вывода содержимого файлов (cat)
+- Анализа частоты слов в тексте (stats)
+
+Использование:
+    python -m src.lab06.cli_text <команда> --input <файл> [опции]
+
+Примеры:
+    python -m src.lab06.cli_text cat --input data/samples/sample.txt
+    python -m src.lab06.cli_text cat --input data/samples/sample.txt -n
+    python -m src.lab06.cli_text stats --input data/samples/sample.txt
+    python -m src.lab06.cli_text stats --input data/samples/sample.txt --top 10
+"""
+
 import argparse
 import sys
-from pathlib import Path
+import os
+from typing import List
 
-def read_and_tokenize(filepath: str):
+
+def read_and_tokenize(filepath: str) -> List[str]:
     """
-    Читает файл и разбивает на слова (токены).
+    Читает текстовый файл и разбивает его содержимое на слова (токены).
+    
+    Процесс токенизации:
+    1. Чтение файла в кодировке UTF-8
+    2. Приведение текста к нижнему регистру
+    3. Удаление пунктуации
+    4. Разбиение на слова по пробельным символам
+    
+    Пример:
+        Файл содержит: "Привет, мир! Hello World."
+        Результат: ["привет", "мир", "hello", "world"]
+    
+    Args:
+        filepath (str): Путь к текстовому файлу
+    
+    Returns:
+        List[str]: Список слов (токенов) из файла
+    
+    Raises:
+        FileNotFoundError: Если файл не существует
+        UnicodeDecodeError: Если файл не в UTF-8 кодировке
     """
+    # Читаем файл с указанием кодировки UTF-8
     with open(filepath, 'r', encoding='utf-8') as f:
         text = f.read()
     
-    # Приводим к нижнему регистру и разбиваем на слова
+    # Приводим весь текст к нижнему регистру для единообразия
     text = text.lower()
-    # Убираем пунктуацию и разбиваем на слова
-    import string
-    for char in string.punctuation:
-        text = text.replace(char, ' ')
     
+    # Удаляем пунктуацию из текста
+    import string
+    # Создаем таблицу перевода для удаления знаков пунктуации
+    translator = str.maketrans('', '', string.punctuation)
+    text = text.translate(translator)
+    
+    # Разбиваем текст на слова по пробельным символам
     tokens = text.split()
+    
     return tokens
 
+
 def main():
+    """
+    Основная функция текстового CLI.
+    
+    Обрабатывает аргументы командной строки и выполняет
+    соответствующие команды для работы с текстовыми файлами.
+    """
+    # Создаем парсер аргументов с подробным описанием
     parser = argparse.ArgumentParser(
-        description="Текстовые утилиты для анализа файлов"
+        description="Текстовые утилиты для работы с файлами",
+        epilog="Примеры использования:\n"
+               "  python -m src.lab06.cli_text cat --input file.txt\n"
+               "  python -m src.lab06.cli_text cat --input file.txt -n\n"
+               "  python -m src.lab06.cli_text stats --input file.txt\n"
+               "  python -m src.lab06.cli_text stats --input file.txt --top 10"
     )
-    subparsers = parser.add_subparsers(dest="command", help="Доступные команды")
     
-    # cat команда
-    cat_parser = subparsers.add_parser("cat", help="Вывести содержимое файла")
-    cat_parser.add_argument("--input", required=True, help="Входной файл")
-    cat_parser.add_argument("-n", action="store_true", help="Нумеровать строки")
+    # Добавляем подпарсеры для разных команд
+    subparsers = parser.add_subparsers(
+        dest="command",
+        help="Доступные текстовые команды"
+    )
     
-    # stats команда
-    stats_parser = subparsers.add_parser("stats", help="Статистика частот слов")
-    stats_parser.add_argument("--input", required=True, help="Входной текстовый файл")
-    stats_parser.add_argument("--top", type=int, default=5, help="Количество топ-слов")
+    # Команда cat (вывод содержимого файла)
+    cat_parser = subparsers.add_parser(
+        "cat",
+        help="Вывести содержимое текстового файла"
+    )
+    cat_parser.add_argument(
+        "--input",
+        required=True,
+        help="Путь к входному файлу (например: data/samples/sample.txt)"
+    )
+    cat_parser.add_argument(
+        "-n",
+        action="store_true",  # Флаг, не требует значения
+        help="Нумеровать строки вывода (полезно для больших файлов)"
+    )
     
+    # Команда stats (статистика слов)
+    stats_parser = subparsers.add_parser(
+        "stats",
+        help="Проанализировать частоту слов в текстовом файле"
+    )
+    stats_parser.add_argument(
+        "--input",
+        required=True,
+        help="Путь к текстовому файлу для анализа"
+    )
+    stats_parser.add_argument(
+        "--top",
+        type=int,
+        default=5,
+        help="Количество наиболее частых слов для вывода (по умолчанию: 5)"
+    )
+    
+    # Парсим аргументы командной строки
     args = parser.parse_args()
     
+    # Если команда не указана, выводим справку
     if not args.command:
         parser.print_help()
         return
     
     try:
+        # Выполняем команду cat
         if args.command == "cat":
+            # Проверяем существование файла
+            if not os.path.exists(args.input):
+                raise FileNotFoundError(f"Файл не найден: {args.input}")
+            
+            # Открываем файл и выводим его содержимое
             with open(args.input, 'r', encoding='utf-8') as f:
-                for i, line in enumerate(f, 1):
+                # Читаем файл построчно с нумерацией
+                for line_number, line in enumerate(f, start=1):
                     if args.n:
-                        print(f"{i:4} {line}", end='')
+                        # С нумерацией: выводим номер строки и содержимое
+                        # :4 - выравнивание номера на 4 символа
+                        print(f"{line_number:4} {line}", end='')
                     else:
+                        # Без нумерации: выводим только содержимое
                         print(line, end='')
-                        
+        
+        # Выполняем команду stats
         elif args.command == "stats":
-            # Импортируем функции из lab03
+            # Проверяем существование файла
+            if not os.path.exists(args.input):
+                raise FileNotFoundError(f"Файл не найден: {args.input}")
+            
+            # Проверяем что параметр top положительный
+            if args.top <= 0:
+                raise ValueError("Параметр --top должен быть положительным числом")
+            
+            # Импортируем функции анализа текста из lab03
             from src.lab03.text_stats import count_freq, top_n
             
-            # Читаем файл и получаем токены
+            # 1. Читаем файл и разбиваем на слова
             tokens = read_and_tokenize(args.input)
             
-            # Подсчитываем частоту
+            # 2. Подсчитываем частоту слов
             frequency = count_freq(tokens)
             
-            # Получаем топ-N слов
+            # 3. Получаем N самых частых слов
             top_words = top_n(frequency, args.top)
             
+            # 4. Выводим результаты
             print(f"Топ-{args.top} слов в файле {args.input}:")
-            for word, count in top_words:
-                print(f"  {word}: {count}")
-                
-    except FileNotFoundError:
-        print(f"❌ Ошибка: файл {args.input} не найден")
+            if not top_words:
+                print("  (файл не содержит слов для анализа)")
+            else:
+                for word, count in top_words:
+                    # Форматированный вывод: слово и его частота
+                    print(f"  {word}: {count}")
+            
+            # Дополнительная статистика
+            print(f"\nОбщая статистика:")
+            print(f"  Всего слов: {len(tokens)}")
+            print(f"  Уникальных слов: {len(frequency)}")
+            if tokens:
+                print(f"  Самые редкие слова (частота 1): {len([w for w, c in frequency.items() if c == 1])}")
+    
+    except FileNotFoundError as e:
+        # Обработка ошибки отсутствия файла
+        print(f"❌ Ошибка: файл не найден - {e}")
+        print("   Проверьте правильность пути к файлу")
         sys.exit(1)
+    
+    except ValueError as e:
+        # Обработка ошибок валидации
+        print(f"❌ Ошибка: неверные параметры - {e}")
+        sys.exit(1)
+    
+    except PermissionError as e:
+        # Обработка ошибок доступа к файлу
+        print(f"❌ Ошибка: нет доступа к файлу - {e}")
+        print("   Проверьте права доступа к файлу")
+        sys.exit(1)
+    
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
+        # Обработка всех остальных ошибок
+        print(f"❌ Неожиданная ошибка: {e}")
+        print("   Проверьте формат файла и его содержимое")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
@@ -1685,217 +1901,504 @@ if __name__ == "__main__":
 
 # test_json_csv.py:
 ``` python
+"""
+Модуль тестирования функций конвертации JSON/CSV из lab05.
+
+Тестирует функции:
+- json_to_csv() - конвертация JSON в CSV
+- csv_to_json() - конвертация CSV в JSON
+
+Использует фикстуру pytest tmp_path для создания временных файлов.
+Тесты включают как позитивные сценарии, так и обработку ошибок.
+"""
+
 import pytest
 import json
 import csv
 import sys
 import os
 
-# Добавляем корневую папку в путь Python
-sys.path.insert(0, os.path.abspath("."))
+# Добавляем корневую папку проекта в путь Python
+sys.path.insert(0, os.path.abspath('.'))
 
+# Импортируем тестируемые функции
 from src.lab05.json_csv import json_to_csv, csv_to_json
 
 
 def test_json_to_csv_basic(tmp_path):
-    """Тест базовой конвертации JSON → CSV"""
-    # Создаём тестовый JSON файл
+    """
+    Тест базовой конвертации JSON → CSV.
+    
+    Проверяет что функция корректно преобразует JSON-массив объектов
+    в CSV файл с соответствующими заголовками и данными.
+    
+    Шаги теста:
+        1. Создаем тестовый JSON файл с данными о людях
+        2. Вызываем json_to_csv()
+        3. Проверяем что CSV файл создан
+        4. Читаем CSV и проверяем структуру и данные
+    
+    Утверждения:
+        - CSV файл существует
+        - Количество строк = 3
+        - Заголовки: name, age, city
+        - Данные первой строки корректны
+    """
+    # Подготовка: создаем пути к временным файлам
     json_path = tmp_path / "test.json"
     csv_path = tmp_path / "test.csv"
-
+    
+    # Создаем тестовые данные - список словарей
     test_data = [
         {"name": "Анна", "age": 25, "city": "Москва"},
         {"name": "Петр", "age": 30, "city": "СПб"},
-        {"name": "Мария", "age": 28, "city": "Казань"},
+        {"name": "Мария", "age": 28, "city": "Казань"}
     ]
-
-    # Записываем JSON
+    
+    # Записываем JSON в файл
     json_path.write_text(
-        json.dumps(test_data, ensure_ascii=False, indent=2), encoding="utf-8"
+        json.dumps(test_data, ensure_ascii=False, indent=2), 
+        encoding='utf-8'
     )
-
-    # Конвертируем
+    
+    # Действие: вызываем функцию конвертации
     json_to_csv(str(json_path), str(csv_path))
-
-    # Проверяем результат
+    
+    # Проверка 1: CSV файл должен быть создан
     assert csv_path.exists()
-
-    with open(csv_path, "r", encoding="utf-8") as f:
+    
+    # Проверка 2: читаем CSV и проверяем содержимое
+    with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        rows = list(reader)
-
+        rows = list(reader)  # Преобразуем в список для проверки
+        
+    # Проверяем количество строк (должно быть 3, как в исходных данных)
     assert len(rows) == 3
+    
+    # Проверяем заголовки (ключи из словарей)
     assert set(rows[0].keys()) == {"name", "age", "city"}
+    
+    # Проверяем данные первой строки
     assert rows[0]["name"] == "Анна"
-    assert rows[0]["age"] == "25"
+    assert rows[0]["age"] == "25"  # В CSV все значения строковые
     assert rows[0]["city"] == "Москва"
 
 
 def test_csv_to_json_basic(tmp_path):
-    """Тест базовой конвертации CSV → JSON"""
-    # Создаём тестовый CSV файл
+    """
+    Тест базовой конвертации CSV → JSON.
+    
+    Проверяет что функция корректно преобразует CSV файл с заголовком
+    в JSON-массив объектов.
+    
+    Шаги теста:
+        1. Создаем тестовый CSV файл
+        2. Вызываем csv_to_json()
+        3. Проверяем что JSON файл создан
+        4. Читаем JSON и проверяем структуру
+    
+    Утверждения:
+        - JSON файл существует
+        - Количество объектов = 3
+        - Структура первого объекта корректна
+    """
+    # Подготовка: создаем пути к временным файлам
     csv_path = tmp_path / "test.csv"
     json_path = tmp_path / "test.json"
-
+    
+    # Создаем содержимое CSV файла
     csv_content = """name,age,city
 Анна,25,Москва
 Петр,30,СПб
 Мария,28,Казань"""
-
-    csv_path.write_text(csv_content, encoding="utf-8")
-
-    # Конвертируем
+    
+    # Записываем CSV в файл
+    csv_path.write_text(csv_content, encoding='utf-8')
+    
+    # Действие: вызываем функцию конвертации
     csv_to_json(str(csv_path), str(json_path))
-
-    # Проверяем результат
+    
+    # Проверка 1: JSON файл должен быть создан
     assert json_path.exists()
-
-    with open(json_path, "r", encoding="utf-8") as f:
+    
+    # Проверка 2: читаем JSON и проверяем содержимое
+    with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-
+    
+    # Проверяем количество объектов
     assert len(data) == 3
+    
+    # Проверяем структуру первого объекта
     assert data[0] == {"name": "Анна", "age": "25", "city": "Москва"}
+    
+    # Проверяем структуру второго объекта
     assert data[1] == {"name": "Петр", "age": "30", "city": "СПб"}
 
 
 def test_json_to_csv_empty_list(tmp_path):
-    """Тест пустого JSON списка"""
+    """
+    Тест обработки пустого JSON массива.
+    
+    Проверяет что функция выбрасывает ValueError
+    при попытке конвертировать пустой JSON массив.
+    
+    Утверждения:
+        - Вызывается исключение ValueError
+        - Сообщение об ошибке содержит слово "Пустой"
+    """
+    # Подготовка: создаем JSON файл с пустым массивом
     json_path = tmp_path / "empty.json"
     csv_path = tmp_path / "empty.csv"
-
-    json_path.write_text("[]", encoding="utf-8")
-
-    # Должна быть ошибка
-    with pytest.raises(ValueError, match=".*Пустой.*|.*empty.*"):
+    
+    # Записываем пустой массив в JSON
+    json_path.write_text('[]', encoding='utf-8')
+    
+    # Действие и проверка: должна быть ошибка ValueError
+    # Используем pytest.raises для проверки исключения
+    with pytest.raises(ValueError, match=".*Пустой.*"):
         json_to_csv(str(json_path), str(csv_path))
 
 
 def test_json_to_csv_invalid_json(tmp_path):
-    """Тест некорректного JSON"""
+    """
+    Тест обработки некорректного JSON.
+    
+    Проверяет что функция выбрасывает ValueError
+    при попытке конвертировать невалидный JSON.
+    
+    Утверждения:
+        - Вызывается исключение ValueError
+        - Сообщение об ошибке содержит "JSON"
+    """
+    # Подготовка: создаем файл с некорректным JSON
     json_path = tmp_path / "invalid.json"
     csv_path = tmp_path / "test.csv"
-
-    json_path.write_text("{not valid json}", encoding="utf-8")
-
+    
+    # Записываем невалидный JSON
+    json_path.write_text('{not valid json}', encoding='utf-8')
+    
+    # Действие и проверка: должна быть ошибка ValueError
     with pytest.raises(ValueError, match=".*JSON.*"):
         json_to_csv(str(json_path), str(csv_path))
 
 
 def test_csv_to_json_missing_file():
-    """Тест отсутствующего файла"""
+    """
+    Тест обработки отсутствующего CSV файла.
+    
+    Проверяет что функция выбрасывает FileNotFoundError
+    при попытке конвертировать несуществующий файл.
+    
+    Утверждения:
+        - Вызывается исключение FileNotFoundError
+    """
+    # Действие и проверка: пытаемся конвертировать несуществующий файл
     with pytest.raises(FileNotFoundError):
         csv_to_json("несуществующий_файл.csv", "output.json")
 
 
 def test_json_to_csv_missing_file():
-    """Тест отсутствующего файла"""
+    """
+    Тест обработки отсутствующего JSON файла.
+    
+    Проверяет что функция выбрасывает FileNotFoundError
+    при попытке конвертировать несуществующий файл.
+    
+    Утверждения:
+        - Вызывается исключение FileNotFoundError
+    """
+    # Действие и проверка: пытаемся конвертировать несуществующий файл
     with pytest.raises(FileNotFoundError):
         json_to_csv("несуществующий_файл.json", "output.csv")
 
 
 def test_json_to_csv_roundtrip(tmp_path):
-    """Тест полного цикла JSON → CSV → JSON"""
-    # Исходные данные
-    original_data = [{"name": "Test", "value": 123}, {"name": "Another", "value": 456}]
-
-    # JSON → CSV
+    """
+    Тест полного цикла конвертации JSON → CSV → JSON.
+    
+    Проверяет что данные не теряются при двойной конвертации:
+    JSON → CSV → JSON.
+    
+    Шаги теста:
+        1. Создаем исходный JSON
+        2. Конвертируем в CSV
+        3. Конвертируем CSV обратно в JSON
+        4. Сравниваем с исходными данными
+    
+    Важно: При конвертации в CSV все значения становятся строками,
+    поэтому при сравнении нужно учитывать этот факт.
+    
+    Утверждения:
+        - Количество записей сохраняется
+        - Имена полей сохраняются
+        - Числовые значения конвертируются в строки
+    """
+    # Подготовка: исходные данные
+    original_data = [
+        {"name": "Test", "value": 123},
+        {"name": "Another", "value": 456}
+    ]
+    
+    # Создаем пути для временных файлов
     json_path = tmp_path / "original.json"
     csv_path = tmp_path / "converted.csv"
     json_path2 = tmp_path / "back.json"
-
-    json_path.write_text(json.dumps(original_data), encoding="utf-8")
+    
+    # Шаг 1: Записываем исходные данные в JSON
+    json_path.write_text(json.dumps(original_data), encoding='utf-8')
+    
+    # Шаг 2: Конвертируем JSON → CSV
     json_to_csv(str(json_path), str(csv_path))
-
-    # CSV → JSON
+    
+    # Шаг 3: Конвертируем CSV → JSON
     csv_to_json(str(csv_path), str(json_path2))
-
-    # Проверяем что данные совпадают
-    with open(json_path2, "r", encoding="utf-8") as f:
+    
+    # Проверка: читаем восстановленные данные
+    with open(json_path2, 'r', encoding='utf-8') as f:
         restored_data = json.load(f)
-
-    # В CSV все значения строковые, поэтому сравниваем соответствующим образом
+    
+    # Утверждение 1: количество записей должно совпадать
     assert len(restored_data) == len(original_data)
+    
+    # Утверждение 2: текстовые поля должны совпадать
     assert restored_data[0]["name"] == original_data[0]["name"]
-    assert restored_data[0]["value"] == str(
-        original_data[0]["value"]
-    )  # CSV хранит строки
+    
+    # Утверждение 3: числовые значения конвертируются в строки
+    # В CSV все значения строковые, поэтому в JSON они тоже будут строками
+    assert restored_data[0]["value"] == str(original_data[0]["value"])
 
 ```
 
 # test_text.py:
 
 ``` python
+"""
+Модуль тестирования функций обработки текста из lab03.
+
+Тестирует функции:
+- count_freq() - подсчет частоты слов
+- top_n() - получение N самых частых слов
+
+Каждый тест проверяет определенный аспект работы функций:
+- Базовые сценарии (нормальная работа)
+- Граничные случаи (пустые данные, один элемент)
+- Особые случаи (равные частоты, сортировка)
+"""
+
 import sys
 import os
 
-# Добавляем корневую папку в путь Python
-sys.path.insert(0, os.path.abspath("."))
+# Добавляем корневую папку проекта в путь Python
+# Это нужно для корректного импорта модулей из src/
+sys.path.insert(0, os.path.abspath('.'))
 
+# Импортируем тестируемые функции из lab03
 from src.lab03.text_stats import count_freq, top_n
 
 
 def test_count_freq_basic():
-    """Тест базовой функции подсчёта частот"""
+    """
+    Тест базового сценария функции count_freq.
+    
+    Проверяет что функция правильно подсчитывает частоту слов
+    в простом списке с повторяющимися элементами.
+    
+    Пример:
+        Вход: ["apple", "banana", "apple", "cherry", "banana", "apple"]
+        Ожидаемый результат: {"apple": 3, "banana": 2, "cherry": 1}
+    
+    Утверждения:
+        - Общее количество уникальных слов = 3
+        - Частота "apple" = 3
+        - Частота "banana" = 2  
+        - Частота "cherry" = 1
+    """
+    # Подготовка: создаем тестовые данные
     tokens = ["apple", "banana", "apple", "cherry", "banana", "apple"]
+    
+    # Действие: вызываем тестируемую функцию
     result = count_freq(tokens)
-
+    
+    # Проверка: проверяем результаты
+    # Проверяем общую структуру результата
     assert result == {"apple": 3, "banana": 2, "cherry": 1}
+    
+    # Проверяем количество уникальных слов
     assert len(result) == 3
+    
+    # Проверяем частоту каждого слова
     assert result["apple"] == 3
     assert result["banana"] == 2
     assert result["cherry"] == 1
 
 
 def test_count_freq_empty():
-    """Тест пустого списка"""
+    """
+    Тест граничного случая: пустой список.
+    
+    Проверяет что функция корректно обрабатывает пустой ввод.
+    Ожидается что результат будет пустым словарем.
+    
+    Утверждения:
+        - Результат = пустой словарь {}
+    """
+    # Подготовка: пустой список
     tokens = []
+    
+    # Действие: вызываем функцию
     result = count_freq(tokens)
+    
+    # Проверка: должен вернуться пустой словарь
     assert result == {}
 
 
 def test_count_freq_single_word():
-    """Тест одного слова"""
+    """
+    Тест случая с одним повторяющимся словом.
+    
+    Проверяет что функция правильно считает частоту
+    когда все слова одинаковые.
+    
+    Пример:
+        Вход: ["hello", "hello", "hello", "hello", "hello"]
+        Ожидаемый результат: {"hello": 5}
+    
+    Утверждения:
+        - Только одно слово в результате
+        - Частота этого слова = 5
+    """
+    # Подготовка: список из 5 одинаковых слов
     tokens = ["hello"] * 5
+    
+    # Действие: вызываем функцию
     result = count_freq(tokens)
+    
+    # Проверка: должен быть один ключ со значением 5
     assert result == {"hello": 5}
 
 
 def test_top_n_basic():
-    """Тест функции top_n"""
+    """
+    Тест базового сценария функции top_n.
+    
+    Проверяет что функция правильно возвращает N самых частых слов.
+    
+    Пример:
+        Вход: {"a": 5, "b": 3, "c": 10, "d": 1, "e": 7}, n=3
+        Ожидаемый результат: [("c", 10), ("e", 7), ("a", 5)]
+    
+    Утверждения:
+        - Возвращается ровно N элементов
+        - Элементы отсортированы по убыванию частоты
+        - Правильный порядок элементов
+    """
+    # Подготовка: создаем словарь частот
     freq = {"a": 5, "b": 3, "c": 10, "d": 1, "e": 7}
+    
+    # Действие: запрашиваем топ-3 слова
     result = top_n(freq, 3)
-
-    assert result == [("c", 10), ("e", 7), ("a", 5)]
+    
+    # Проверка: проверяем результат
+    # Проверяем что вернулось ровно 3 элемента
     assert len(result) == 3
+    
+    # Проверяем правильный порядок (по убыванию частоты)
+    assert result == [("c", 10), ("e", 7), ("a", 5)]
 
 
 def test_top_n_all():
-    """Тест когда запрашиваем все элементы"""
+    """
+    Тест когда запрашивается больше элементов чем есть.
+    
+    Проверяет что функция корректно обрабатывает ситуацию
+    когда n больше чем количество уникальных слов.
+    
+    Пример:
+        Вход: {"a": 1, "b": 2, "c": 3}, n=10
+        Ожидаемый результат: [("c", 3), ("b", 2), ("a", 1)]
+    
+    Утверждения:
+        - Возвращаются все доступные элементы
+        - Элементы отсортированы по убыванию частоты
+    """
+    # Подготовка: словарь с 3 элементами
     freq = {"a": 1, "b": 2, "c": 3}
-    result = top_n(freq, 10)  # больше чем есть
+    
+    # Действие: запрашиваем 10 элементов (больше чем есть)
+    result = top_n(freq, 10)
+    
+    # Проверка: должны вернуться все 3 элемента
     assert result == [("c", 3), ("b", 2), ("a", 1)]
 
 
 def test_top_n_tie_breaker():
-    """Тест при равенстве частот (сортировка по алфавиту)"""
+    """
+    Тест сортировки при равных частотах.
+    
+    Проверяет что при одинаковой частоте слова
+    сортируются по алфавиту (возрастанию).
+    
+    Пример:
+        Вход: {"z": 5, "a": 5, "m": 5, "b": 2}, n=3
+        Ожидаемый результат: [("a", 5), ("m", 5), ("z", 5)]
+    
+    Утверждения:
+        - Сначала идут слова с частотой 5
+        - Слова с равной частотой отсортированы по алфавиту
+        - Слово "b" с частотой 2 не попадает в топ-3
+    """
+    # Подготовка: словарь где 3 слова имеют одинаковую частоту
     freq = {"z": 5, "a": 5, "m": 5, "b": 2}
+    
+    # Действие: запрашиваем топ-3
     result = top_n(freq, 3)
-    # При равенстве частот сортировка по алфавиту
+    
+    # Проверка: слова с равной частотой должны быть отсортированы по алфавиту
+    # Ожидаем: ("a", 5), ("m", 5), ("z", 5)
     assert result == [("a", 5), ("m", 5), ("z", 5)]
 
 
 def test_top_n_zero_n():
-    """Тест когда n=0"""
+    """
+    Тест граничного случая: n = 0.
+    
+    Проверяет что функция корректно обрабатывает запрос
+    0 самых частых слов.
+    
+    Утверждения:
+        - Возвращается пустой список
+    """
+    # Подготовка: обычный словарь частот
     freq = {"a": 1, "b": 2}
+    
+    # Действие: запрашиваем 0 элементов
     result = top_n(freq, 0)
+    
+    # Проверка: должен вернуться пустой список
     assert result == []
 
 
 def test_top_n_default():
-    """Тест с default значением n=5"""
+    """
+    Тест работы функции с параметром по умолчанию.
+    
+    Проверяет что функция top_n работает корректно
+    когда параметр n не указан (используется значение по умолчанию = 5).
+    
+    Утверждения:
+        - Возвращается 5 элементов (по умолчанию)
+        - Самый частый элемент правильный
+    """
+    # Подготовка: словарь с 6 элементами
     freq = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6}
-    result = top_n(freq)  # default n=5
+    
+    # Действие: вызываем функцию без параметра n
+    result = top_n(freq)  # должно использоваться n=5 по умолчанию
+    
+    # Проверка: должно вернуться 5 элементов
     assert len(result) == 5
+    
+    # Проверка: самый частый элемент должен быть "f" с частотой 6
     assert result[0] == ("f", 6)
 
 ```
