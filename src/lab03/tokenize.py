@@ -34,13 +34,14 @@ def tokenize(text: str) -> list[str]:
 
     return tokens
 
+
 print("=== Тесты текста ===")
 texts = [
     "привет мир",
-    "hello,world!!!", 
+    "hello,world!!!",
     "по-настоящему круто",
     "2025 год",
-    "emoji 🐈‍⬛ не слово"
+    "emoji 🐈‍⬛ не слово",
 ]
 
 for text in texts:

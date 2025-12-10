@@ -14,7 +14,9 @@ def _validate_rectangular(mat: list[list[float | int]]) -> None:
     first_len = len(mat[0])
     for i, row in enumerate(mat):
         if len(row) != first_len:
-            raise ValueError(f"Матрица рваная: строка {i} имеет длину {len(row)}, ожидалась {first_len}")
+            raise ValueError(
+                f"Матрица рваная: строка {i} имеет длину {len(row)}, ожидалась {first_len}"
+            )
 
 
 def transpose(mat: list[list[float | int]]) -> list[list[float | int]]:
@@ -76,6 +78,7 @@ def col_sums(mat: list[list[float | int]]) -> list[float]:
 
     return [sum(mat[i][j] for i in range(len(mat))) for j in range(len(mat[0]))]
 
+
 print("\n=== Matrix Tests ===")
 
 # Тест 1: нормальное транспонирование
@@ -100,7 +103,9 @@ except ValueError as e:
     print(f"row_sums([[1, 2], [3]]): ValueError - {e}")
 
 # Тест 6: суммы по столбцам
-print("col_sums([[1, 2, 3], [4, 5, 6]]):", col_sums([[1, 2, 3], [4, 5, 6]]))  # [5, 7, 9]
+print(
+    "col_sums([[1, 2, 3], [4, 5, 6]]):", col_sums([[1, 2, 3], [4, 5, 6]])
+)  # [5, 7, 9]
 
 # Тест 7: суммы по столбцам рваной матрицы
 try:

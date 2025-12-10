@@ -17,11 +17,17 @@ def format_record(rec: tuple[str, str, float]) -> str:
 
     fio, group, gpa = rec
 
-    if not isinstance(fio, str) or not isinstance(group, str) or not isinstance(gpa, (int, float)):
+    if (
+        not isinstance(fio, str)
+        or not isinstance(group, str)
+        or not isinstance(gpa, (int, float))
+    ):
         raise TypeError("Неверные типы данных: ожидались (str, str, float)")
 
     # Обработка ФИО
-    fio_clean = ' '.join(fio.split()).title()  # Убираем лишние пробелы и делаем заглавные буквы
+    fio_clean = " ".join(
+        fio.split()
+    ).title()  # Убираем лишние пробелы и делаем заглавные буквы
     fio_parts = fio_clean.split()
 
     if len(fio_parts) < 2:
@@ -35,17 +41,19 @@ def format_record(rec: tuple[str, str, float]) -> str:
 
     # Формируем инициалы
     surname = fio_parts[0]
-    initials = '.'.join(name[0].upper() for name in fio_parts[1:]) + '.'
+    initials = ".".join(name[0].upper() for name in fio_parts[1:]) + "."
 
     # Форматируем GPA с 2 знаками после запятой
     gpa_formatted = f"{gpa:.2f}"
 
     return f"{surname} {initials}, гр. {group}, GPA {gpa_formatted}"
-'''
+
+
+"""
 print("\n=== Tuples Tests ===")
 print(format_record(("Иванов Иван Иванович", "BIVT-25", 4.6)))  # "Иванов И.И., гр. BIVT-25, GPA 4.60"
 print(format_record(("Петров Пётр", "IKBO-12", 5.0)))  # "Петров П., гр. IKBO-12, GPA 5.00"
-'''
+"""
 print("\n=== Tuples Tests ===")
 
 # Тест 1: нормальный случай с отчеством
@@ -53,7 +61,9 @@ try:
     result = format_record(("Иванов Иван Иванович", "BIVT-25", 4.6))
     print(f"format_record(('Иванов Иван Иванович', 'BIVT-25', 4.6)): {result}")
 except Exception as e:
-    print(f"format_record(('Иванов Иван Иванович', 'BIVT-25', 4.6)): {type(e).__name__} - {e}")
+    print(
+        f"format_record(('Иванов Иван Иванович', 'BIVT-25', 4.6)): {type(e).__name__} - {e}"
+    )
 
 # Тест 2: нормальный случай без отчества
 try:
@@ -65,9 +75,13 @@ except Exception as e:
 # Тест 3: нормальный случай с лишними пробелами
 try:
     result = format_record(("    хужамова   тасмина   музаффаровна ", "ABB-01", 3.999))
-    print(f"format_record(('  хужамова  тасмина  музаффаровна ', 'ABB-01', 3.999)): {result}")
+    print(
+        f"format_record(('  хужамова  тасмина  музаффаровна ', 'ABB-01', 3.999)): {result}"
+    )
 except Exception as e:
-    print(f"format_record(('  хужамова   тасмина   музаффаровна ', 'ABB-01', 3.999)): {type(e).__name__} - {e}")
+    print(
+        f"format_record(('  хужамова   тасмина   музаффаровна ', 'ABB-01', 3.999)): {type(e).__name__} - {e}"
+    )
 
 # Тест 4: ошибка - пустое ФИО
 try:
@@ -110,4 +124,6 @@ try:
     result = format_record(("Хужамова Тасмина", "IKBO-10", 3.456))
     print(f"format_record(('Хужамова Тасмина', 'IKBO-10', 3.456)): {result}")
 except Exception as e:
-    print(f"format_record(('Хужамова Тасмина', 'IKBO-10', 3.456)): {type(e).__name__} - {e}")
+    print(
+        f"format_record(('Хужамова Тасмина', 'IKBO-10', 3.456)): {type(e).__name__} - {e}"
+    )

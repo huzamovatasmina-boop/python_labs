@@ -1,5 +1,3 @@
-
-
 def count_freq(tokens: list[str]) -> dict[str, int]:
     """
     Подсчитывает, сколько раз каждое слово встречается в списке.
@@ -31,44 +29,46 @@ def count_freq(tokens: list[str]) -> dict[str, int]:
 
     return frequency_dict
 
-def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]: 
-    """Возвращает n наиболее часто встречающихся 
+
+def top_n(freq: dict[str, int], n: int = 5) -> list[tuple[str, int]]:
+    """Возвращает n наиболее часто встречающихся
     элементов из словаря частот.
 
     Args:
-        freq: Словарь, где ключи - это элементы (например, слова), 
+        freq: Словарь, где ключи - это элементы (например, слова),
         а значения - их частота встречаемости
 
         n: количество самых частовстречающихся элементов, которые нужно вернуть.
         По умолчанию равно 5.
 
     Returns:
-        list[tuple[str, int]]: Список из `n` кортежей, 
+        list[tuple[str, int]]: Список из `n` кортежей,
         каждый из которых содержит элемент
-        (строку) и его частоту (целое число), 
+        (строку) и его частоту (целое число),
         отсротированные в порядке убывания частоты.
-    
+
     """
     # Преобразуем словарь в список кортежей
     items = list(freq.items())
 
-    # Сортируем по убыванию частоты, при равенстве - по алфавиту.lambda - ключ для сортировки по частотеб 
-    sorted_items = sorted(items,  key=lambda x: (-x[1], x[0]))
+    # Сортируем по убыванию частоты, при равенстве - по алфавиту.lambda - ключ для сортировки по частотеб
+    sorted_items = sorted(items, key=lambda x: (-x[1], x[0]))
 
     # Возвращаем первые n элементов
     return sorted_items[:n]
 
+
 print("=== Тесты списка/словаря №1===")
-tokens = ["a","b","a","c","b","a"]
-result_for_count=count_freq(tokens)
-result_for_top=top_n(result_for_count, n=2)
+tokens = ["a", "b", "a", "c", "b", "a"]
+result_for_count = count_freq(tokens)
+result_for_top = top_n(result_for_count, n=2)
 print("Словарь частот:", result_for_count)
 print("Топ-2 слов:", result_for_top)
 
 
 print("=== Тесты списка/словаря №2===")
-tokens = ["bb","aa","bb","aa","cc"]
-result_for_count=count_freq(tokens)
-result_for_top=top_n(result_for_count, n=2)
+tokens = ["bb", "aa", "bb", "aa", "cc"]
+result_for_count = count_freq(tokens)
+result_for_top = top_n(result_for_count, n=2)
 print("Словарь частот:", result_for_count)
 print("Топ-2 слов:", result_for_top)

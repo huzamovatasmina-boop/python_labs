@@ -44,11 +44,11 @@ def flatten(mat: list[list | tuple]) -> list:
         TypeError: Если встретился элемент, не являющийся списком или кортежем
 
     extend:
-    распаковывает элементы списка или кортежа, 
+    распаковывает элементы списка или кортежа,
     добавляя в список result отдельные элементы каждого списка
     можно было использовать sublist вот так:
-    result = [item for sublist in mat for item in sublist], 
-    где часть   for sublist in mat  перебирает вложенные списки/кортежи, 
+    result = [item for sublist in mat for item in sublist],
+    где часть   for sublist in mat  перебирает вложенные списки/кортежи,
     а    for item in sublist   извлекает каждый элемент
 
     isinstance:
@@ -59,8 +59,9 @@ def flatten(mat: list[list | tuple]) -> list:
     for item in mat:
         if not isinstance(item, (list, tuple)):
             raise TypeError("Все элементы должны быть списками или кортежами")
-        result.extend(item) 
+        result.extend(item)
     return result
+
 
 # Тест 1: нормальный случай
 print("min_max([3, -1, 5, 5, 0]):", min_max([3, -1, 5, 5, 0]))

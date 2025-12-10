@@ -1,8 +1,8 @@
 # Ввод ФИО и удаление лишних пробелов
-fio = input('ФИО: ')
+fio = input("ФИО: ")
 
 # Получаем инициалы (первые буквы каждого слова) в верхнем регистре
-initials = ''.join(word[0].upper() for word in fio.split())
+initials = "".join(word[0].upper() for word in fio.split())
 
 # Выводим инициалы и длину строки без лишних пробелов
 print(f"Инициалы: {initials}.")
