@@ -1681,3 +1681,235 @@ if __name__ == "__main__":
 ![alt text](<images/lab06/top_3, 5.png>)
 
 
+# Лабораторная работа №7
+
+# test_json_csv.py:
+``` python
+import pytest
+import json
+import csv
+import sys
+import os
+
+# Добавляем корневую папку в путь Python
+sys.path.insert(0, os.path.abspath("."))
+
+from src.lab05.json_csv import json_to_csv, csv_to_json
+
+
+def test_json_to_csv_basic(tmp_path):
+    """Тест базовой конвертации JSON → CSV"""
+    # Создаём тестовый JSON файл
+    json_path = tmp_path / "test.json"
+    csv_path = tmp_path / "test.csv"
+
+    test_data = [
+        {"name": "Анна", "age": 25, "city": "Москва"},
+        {"name": "Петр", "age": 30, "city": "СПб"},
+        {"name": "Мария", "age": 28, "city": "Казань"},
+    ]
+
+    # Записываем JSON
+    json_path.write_text(
+        json.dumps(test_data, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    # Конвертируем
+    json_to_csv(str(json_path), str(csv_path))
+
+    # Проверяем результат
+    assert csv_path.exists()
+
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    assert len(rows) == 3
+    assert set(rows[0].keys()) == {"name", "age", "city"}
+    assert rows[0]["name"] == "Анна"
+    assert rows[0]["age"] == "25"
+    assert rows[0]["city"] == "Москва"
+
+
+def test_csv_to_json_basic(tmp_path):
+    """Тест базовой конвертации CSV → JSON"""
+    # Создаём тестовый CSV файл
+    csv_path = tmp_path / "test.csv"
+    json_path = tmp_path / "test.json"
+
+    csv_content = """name,age,city
+Анна,25,Москва
+Петр,30,СПб
+Мария,28,Казань"""
+
+    csv_path.write_text(csv_content, encoding="utf-8")
+
+    # Конвертируем
+    csv_to_json(str(csv_path), str(json_path))
+
+    # Проверяем результат
+    assert json_path.exists()
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    assert len(data) == 3
+    assert data[0] == {"name": "Анна", "age": "25", "city": "Москва"}
+    assert data[1] == {"name": "Петр", "age": "30", "city": "СПб"}
+
+
+def test_json_to_csv_empty_list(tmp_path):
+    """Тест пустого JSON списка"""
+    json_path = tmp_path / "empty.json"
+    csv_path = tmp_path / "empty.csv"
+
+    json_path.write_text("[]", encoding="utf-8")
+
+    # Должна быть ошибка
+    with pytest.raises(ValueError, match=".*Пустой.*|.*empty.*"):
+        json_to_csv(str(json_path), str(csv_path))
+
+
+def test_json_to_csv_invalid_json(tmp_path):
+    """Тест некорректного JSON"""
+    json_path = tmp_path / "invalid.json"
+    csv_path = tmp_path / "test.csv"
+
+    json_path.write_text("{not valid json}", encoding="utf-8")
+
+    with pytest.raises(ValueError, match=".*JSON.*"):
+        json_to_csv(str(json_path), str(csv_path))
+
+
+def test_csv_to_json_missing_file():
+    """Тест отсутствующего файла"""
+    with pytest.raises(FileNotFoundError):
+        csv_to_json("несуществующий_файл.csv", "output.json")
+
+
+def test_json_to_csv_missing_file():
+    """Тест отсутствующего файла"""
+    with pytest.raises(FileNotFoundError):
+        json_to_csv("несуществующий_файл.json", "output.csv")
+
+
+def test_json_to_csv_roundtrip(tmp_path):
+    """Тест полного цикла JSON → CSV → JSON"""
+    # Исходные данные
+    original_data = [{"name": "Test", "value": 123}, {"name": "Another", "value": 456}]
+
+    # JSON → CSV
+    json_path = tmp_path / "original.json"
+    csv_path = tmp_path / "converted.csv"
+    json_path2 = tmp_path / "back.json"
+
+    json_path.write_text(json.dumps(original_data), encoding="utf-8")
+    json_to_csv(str(json_path), str(csv_path))
+
+    # CSV → JSON
+    csv_to_json(str(csv_path), str(json_path2))
+
+    # Проверяем что данные совпадают
+    with open(json_path2, "r", encoding="utf-8") as f:
+        restored_data = json.load(f)
+
+    # В CSV все значения строковые, поэтому сравниваем соответствующим образом
+    assert len(restored_data) == len(original_data)
+    assert restored_data[0]["name"] == original_data[0]["name"]
+    assert restored_data[0]["value"] == str(
+        original_data[0]["value"]
+    )  # CSV хранит строки
+
+```
+
+# test_text.py:
+
+``` python
+import sys
+import os
+
+# Добавляем корневую папку в путь Python
+sys.path.insert(0, os.path.abspath("."))
+
+from src.lab03.text_stats import count_freq, top_n
+
+
+def test_count_freq_basic():
+    """Тест базовой функции подсчёта частот"""
+    tokens = ["apple", "banana", "apple", "cherry", "banana", "apple"]
+    result = count_freq(tokens)
+
+    assert result == {"apple": 3, "banana": 2, "cherry": 1}
+    assert len(result) == 3
+    assert result["apple"] == 3
+    assert result["banana"] == 2
+    assert result["cherry"] == 1
+
+
+def test_count_freq_empty():
+    """Тест пустого списка"""
+    tokens = []
+    result = count_freq(tokens)
+    assert result == {}
+
+
+def test_count_freq_single_word():
+    """Тест одного слова"""
+    tokens = ["hello"] * 5
+    result = count_freq(tokens)
+    assert result == {"hello": 5}
+
+
+def test_top_n_basic():
+    """Тест функции top_n"""
+    freq = {"a": 5, "b": 3, "c": 10, "d": 1, "e": 7}
+    result = top_n(freq, 3)
+
+    assert result == [("c", 10), ("e", 7), ("a", 5)]
+    assert len(result) == 3
+
+
+def test_top_n_all():
+    """Тест когда запрашиваем все элементы"""
+    freq = {"a": 1, "b": 2, "c": 3}
+    result = top_n(freq, 10)  # больше чем есть
+    assert result == [("c", 3), ("b", 2), ("a", 1)]
+
+
+def test_top_n_tie_breaker():
+    """Тест при равенстве частот (сортировка по алфавиту)"""
+    freq = {"z": 5, "a": 5, "m": 5, "b": 2}
+    result = top_n(freq, 3)
+    # При равенстве частот сортировка по алфавиту
+    assert result == [("a", 5), ("m", 5), ("z", 5)]
+
+
+def test_top_n_zero_n():
+    """Тест когда n=0"""
+    freq = {"a": 1, "b": 2}
+    result = top_n(freq, 0)
+    assert result == []
+
+
+def test_top_n_default():
+    """Тест с default значением n=5"""
+    freq = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6}
+    result = top_n(freq)  # default n=5
+    assert len(result) == 5
+    assert result[0] == ("f", 6)
+
+```
+
+# Тесты и выводы:
+
+**Выводы тестов:**
+
+![alt text](<images/lab07/test1.png>)
+
+**Вывод автоформаттера black+black check:**
+
+![alt text](<images/lab07/black-check.png>)
+
+**Выводы pyptoject.toml:**
+
+![alt text](<images/lab07/toml.png>)
