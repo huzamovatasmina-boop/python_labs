@@ -1561,7 +1561,7 @@ if __name__ == "__main__":
 ```
 
 
-# cli_convert:
+# cli_text:
 ``` python
 # src/lab06/cli_text.py
 import argparse
