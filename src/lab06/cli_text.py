@@ -1,5 +1,4 @@
 # src/lab06/cli_text.py
-# src/lab06/cli_text.py
 import argparse
 import sys
 from pathlib import Path
