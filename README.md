@@ -2755,6 +2755,6 @@ def print_students_table(students: List[Student]) -> None:
 
 ![alt text](<images/lab08/output.png>)
 
-**Вывод данных студентов в csv(в твблице Exel):**
+**Вывод данных студентов в csv(в таблице Exel):**
 
 ![alt text](<images/lab08/exel.png>)
