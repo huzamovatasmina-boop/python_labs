@@ -2416,3 +2416,59 @@ def test_top_n_default():
 **Выводы pyptoject.toml:**
 
 ![alt text](<images/lab07/toml.png>)
+
+
+# Лабораторная работа 8 - ООП в Python: @dataclass Student
+
+## Описание
+Реализация класса Student с использованием декоратора `@dataclass`, включая методы, валидацию и сериализацию.
+
+## Класс Student
+
+### Поля
+- `fio` (str): ФИО студента
+- `birthdate` (str): Дата рождения в формате YYYY-MM-DD
+- `group` (str): Номер группы (например, "SE-01")
+- `gpa` (float): Средний балл (от 0 до 5)
+
+### Методы
+- `age()`: Возвращает возраст студента в полных годах
+- `to_dict()`: Преобразует объект в словарь
+- `from_dict()`: Создаёт объект из словаря (classmethod)
+- `__str__()`: Строковое представление студента
+
+### Валидация
+- Формат даты рождения: YYYY-MM-DD
+- Диапазон среднего балла: 0 ≤ gpa ≤ 5
+- ФИО должно содержать минимум 2 слова
+
+## Модуль сериализации
+
+### Функции
+- `students_to_json(students, path)`: Сохраняет список студентов в JSON
+- `students_from_json(path) -> list[Student]`: Загружает список студентов из JSON
+- `export_students_csv(students, path)`: Экспортирует в CSV
+- `print_students_table(students)`: Выводит таблицу студентов
+
+## Пример использования
+
+```python
+from src.lab08.models import Student
+from src.lab08.serialize import students_to_json, students_from_json
+
+# Создание студента
+student = Student(
+    fio="Иванов Иван Иванович",
+    birthdate="2000-05-15",
+    group="SE-01",
+    gpa=4.5
+)
+
+print(student)  # Иванов Иван Иванович, SE-01, GPA: 4.50, возраст: 25 лет
+print(f"Возраст: {student.age()} лет")  # Возраст: 25 лет
+
+# Сериализация
+students_to_json([student], "data/lab08/output.json")
+
+# Десериализация
+loaded_students = students_from_json("data/lab08/output.json")
