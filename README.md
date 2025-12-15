@@ -2760,3 +2760,9 @@ def print_students_table(students: List[Student]) -> None:
 ![alt text](<images/lab08/exel.png>)
 
 
+# Лабораторная работа 9 - «База данных» на CSV
+
+## Описание
+Реализация класса `Group` для работы с базой данных студентов в формате CSV. 
+Класс предоставляет полный набор CRUD-операций (Create, Read, Update, Delete).
+
