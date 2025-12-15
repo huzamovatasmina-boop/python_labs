@@ -492,11 +492,11 @@ except Exception as e:
 
 
 # Лабораторная работа №3
-# Тексты и частоты слов (словарь/множество)
-# Цель: 
+## Тексты и частоты слов (словарь/множество)
+## Цель: 
 Нормализовать текст, аккуратно токенизировать, посчитать частоты слов и вывести топ-N.
 
-# Задание A (1.normalaize, 2.tokenize, 3.count_freq, 4.top_n):
+## Задание A (1.normalaize, 2.tokenize, 3.count_freq, 4.top_n):
 
 **Файл:** `src/lab03/normalaize.py`
 
@@ -834,7 +834,7 @@ if __name__ == '__main__':
 
 
 # Лабораторная работа №4
-# задание А
+## задание А
 
 **Файл text_report:**
 ``` python
@@ -1274,7 +1274,7 @@ def ensure_parent_dir(path: Union[str, Path]) -> None:
 
 
 # Лабораторная работа №5
-# JSON и конвертации (JSON↔CSV, CSV→XLSX): Техническое задание
+## JSON и конвертации (JSON↔CSV, CSV→XLSX): Техническое задание
 **Цель:**
 Разобраться с форматом JSON, сериализацией/десериализацией и табличными конвертациями
 
@@ -1498,7 +1498,7 @@ def csv_to_xlsx(csv_path: str, xlsx_path: str) -> None:
 
 
 # Лабораторная работа №6
-# cli_convert:
+## cli_convert:
 ``` python
 """
 Командный интерфейс для конвертации данных между форматами.
@@ -1899,7 +1899,7 @@ if __name__ == "__main__":
 
 # Лабораторная работа №7
 
-# test_json_csv.py:
+## test_json_csv.py:
 ``` python
 """
 Модуль тестирования функций конвертации JSON/CSV из lab05.
@@ -2444,7 +2444,7 @@ def test_top_n_default():
 
 ## Модуль сериализации
 
-### Функции
+## Функции
 - `students_to_json(students, path)`: Сохраняет список студентов в JSON
 - `students_from_json(path) -> list[Student]`: Загружает список студентов из JSON
 - `export_students_csv(students, path)`: Экспортирует в CSV
@@ -2741,7 +2741,7 @@ def print_students_table(students: List[Student]) -> None:
 
 ```
 
-# Тесты и выводы:
+## Тесты и выводы:
 
 **Выводы тестов:**
 
@@ -2758,3 +2758,5 @@ def print_students_table(students: List[Student]) -> None:
 **Вывод данных студентов в csv(в таблице Exel):**
 
 ![alt text](<images/lab08/exel.png>)
+
+
