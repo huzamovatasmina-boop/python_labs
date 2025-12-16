@@ -126,7 +126,7 @@ class Group:
         # Записываем обратно
         self._write_all(rows)
         
-        print(f"✅ Студент {student.fio} успешно добавлен")
+        print(f"Студент {student.fio} успешно добавлен")
     
     def find(self, substr: str) -> List[Student]:
         """
@@ -144,9 +144,9 @@ class Group:
         found = [s for s in all_students if substr_lower in s.fio.lower()]
         
         if found:
-            print(f"🔍 Найдено {len(found)} студентов по запросу '{substr}'")
+            print(f"Найдено {len(found)} студентов по запросу '{substr}'")
         else:
-            print(f"🔍 Студенты по запросу '{substr}' не найдены")
+            print(f"Студенты по запросу '{substr}' не найдены")
         
         return found
     
@@ -168,10 +168,10 @@ class Group:
         
         if len(rows) < original_count:
             self._write_all(rows)
-            print(f"🗑️ Студент {fio} удалён")
+            print(f"Студент {fio} удалён")
             return True
         else:
-            print(f"⚠️ Студент {fio} не найден")
+            print(f"Студент {fio} не найден")
             return False
     
     def update(self, fio: str, **fields) -> bool:
@@ -201,7 +201,7 @@ class Group:
         
         if updated:
             self._write_all(rows)
-            print(f"✏️ Данные студента {fio} обновлены")
+            print(f"Данные студента {fio} обновлены")
         else:
             print(f"⚠️ Студент {fio} не найден")
         
