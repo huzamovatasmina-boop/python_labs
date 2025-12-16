@@ -34,7 +34,7 @@ def main():
     
     for student in students:
         group.add(student)
-        print(f"   ✅ Добавлен: {student.fio}")
+        print(f"  Добавлен: {student.fio}")
     
     print("\n3. Выводим список всех студентов:")
     group.print_table()
@@ -75,7 +75,7 @@ def main():
     with open(db_path, 'r', encoding='utf-8') as f:
         print(f.read())
     
-    print("\n✅ Демонстрация завершена успешно!")
+    print("\n Демонстрация завершена успешно!")
 
 if __name__ == "__main__":
     main()
