@@ -3144,4 +3144,707 @@ if __name__ == "__main__":
 
 ![alt text](<images/lab09/test students.png>)
 
+# Лабораторная работа 10 - Структуры данных
 
+## Результаты
+
+### 1. Реализованы три структуры данных:
+- ✅ **Stack (стек)** - на основе list, LIFO (Last In, First Out)
+- ✅ **Queue (очередь)** - на основе collections.deque, FIFO (First In, First Out)
+- ✅ **SinglyLinkedList (односвязный список)** - с узлами Node
+
+### 2. Производительность (бенчмарки):
+
+#### Для 10,000 операций:
+| Структура | Операция | Время (сек) | Сложность |
+|-----------|----------|-------------|-----------|
+| **Stack** | push/pop | ~0.001 | O(1) |
+| **Queue** | enqueue/dequeue | ~0.001 | O(1) |
+| **LinkedList** | append/prepend | ~0.003 | O(1) |
+
+#### Сравнение добавления 10,000 элементов:
+- **Python list (встроенный):** 0.001148 сек
+- **Наш Stack:** 0.000769 сек **✅**
+- **Наш Queue:** 0.001291 сек
+- **Наш LinkedList:** 0.005227 сек
+
+### 3. Практическое применение:
+Реализована функция проверки сбалансированности скобок с использованием стека:
+```python
+def is_balanced(expression: str) -> bool:
+    stack = Stack()
+    brackets = {'(': ')', '[': ']', '{': '}'}
+    
+    for char in expression:
+        if char in brackets.keys():
+            stack.push(char)
+        elif char in brackets.values():
+            if stack.is_empty():
+                return False
+            opening = stack.pop()
+            if brackets[opening] != char:
+                return False
+    
+    return stack.is_empty()
+```
+
+#### structures.py
+``` python
+"""
+Модуль содержит реализации базовых структур данных: Stack (стек) и Queue (очередь).
+"""
+
+from collections import deque
+from typing import Any, Optional
+
+
+class Stack:
+    """
+    Реализация стека (LIFO - Last In, First Out) на основе списка Python.
+    
+    Стек - это структура данных, в которой элементы добавляются и удаляются 
+    с одного конца (вершины стека). Аналогия: стопка тарелок.
+    
+    Операции:
+    - push(item): Добавить элемент на вершину стека - O(1)
+    - pop(): Удалить и вернуть элемент с вершины - O(1)
+    - peek(): Посмотреть элемент на вершине без удаления - O(1)
+    - is_empty(): Проверить, пуст ли стек - O(1)
+    """
+    
+    def __init__(self):
+        """Инициализация пустого стека."""
+        self._data: list[Any] = []
+    
+    def push(self, item: Any) -> None:
+        """
+        Добавляет элемент на вершину стека.
+        
+        Args:
+            item: Элемент для добавления
+        """
+        self._data.append(item)
+    
+    def pop(self) -> Any:
+        """
+        Удаляет и возвращает элемент с вершины стека.
+        
+        Returns:
+            Элемент с вершины стека
+            
+        Raises:
+            IndexError: Если стек пуст
+        """
+        if self.is_empty():
+            raise IndexError("Нельзя удалить элемент из пустого стека")
+        return self._data.pop()
+    
+    def peek(self) -> Optional[Any]:
+        """
+        Возвращает элемент на вершине стека без удаления.
+        
+        Returns:
+            Элемент на вершине стека или None, если стек пуст
+        """
+        if self.is_empty():
+            return None
+        return self._data[-1]
+    
+    def is_empty(self) -> bool:
+        """
+        Проверяет, пуст ли стек.
+        
+        Returns:
+            True если стек пуст, иначе False
+        """
+        return len(self._data) == 0
+    
+    def __len__(self) -> int:
+        """
+        Возвращает количество элементов в стеке.
+        
+        Returns:
+            Количество элементов
+        """
+        return len(self._data)
+    
+    def __str__(self) -> str:
+        """
+        Возвращает строковое представление стека.
+        
+        Returns:
+            Строка вида "Stack([элементы])"
+        """
+        return f"Stack({self._data})"
+    
+    def __repr__(self) -> str:
+        """Возвращает представление стека для отладки."""
+        return f"Stack({self._data})"
+    
+    def clear(self) -> None:
+        """Очищает стек (удаляет все элементы)."""
+        self._data.clear()
+
+
+class Queue:
+    """
+    Реализация очереди (FIFO - First In, First Out) на основе deque.
+    
+    Очередь - это структура данных, в которой элементы добавляются в конец,
+    а удаляются из начала. Аналогия: очередь в магазине.
+    
+    Используется collections.deque для эффективной реализации (O(1) для операций
+    добавления/удаления с обоих концов).
+    
+    Операции:
+    - enqueue(item): Добавить элемент в конец очереди - O(1)
+    - dequeue(): Удалить и вернуть элемент из начала - O(1)
+    - peek(): Посмотреть первый элемент без удаления - O(1)
+    - is_empty(): Проверить, пуста ли очередь - O(1)
+    """
+    
+    def __init__(self):
+        """Инициализация пустой очереди."""
+        self._data: deque[Any] = deque()
+    
+    def enqueue(self, item: Any) -> None:
+        """
+        Добавляет элемент в конец очереди.
+        
+        Args:
+            item: Элемент для добавления
+        """
+        self._data.append(item)
+    
+    def dequeue(self) -> Any:
+        """
+        Удаляет и возвращает элемент из начала очереди.
+        
+        Returns:
+            Элемент из начала очереди
+            
+        Raises:
+            IndexError: Если очередь пуста
+        """
+        if self.is_empty():
+            raise IndexError("Нельзя удалить элемент из пустой очереди")
+        return self._data.popleft()
+    
+    def peek(self) -> Optional[Any]:
+        """
+        Возвращает первый элемент очереди без удаления.
+        
+        Returns:
+            Первый элемент очереди или None, если очередь пуста
+        """
+        if self.is_empty():
+            return None
+        return self._data[0]
+    
+    def is_empty(self) -> bool:
+        """
+        Проверяет, пуста ли очередь.
+        
+        Returns:
+            True если очередь пуста, иначе False
+        """
+        return len(self._data) == 0
+    
+    def __len__(self) -> int:
+        """
+        Возвращает количество элементов в очереди.
+        
+        Returns:
+            Количество элементов
+        """
+        return len(self._data)
+    
+    def __str__(self) -> str:
+        """
+        Возвращает строковое представление очереди.
+        
+        Returns:
+            Строка вида "Queue([элементы])"
+        """
+        return f"Queue({list(self._data)})"
+    
+    def __repr__(self) -> str:
+        """Возвращает представление очереди для отладки."""
+        return f"Queue({list(self._data)})"
+    
+    def clear(self) -> None:
+        """Очищает очередь (удаляет все элементы)."""
+        self._data.clear()
+
+
+def stack_example() -> None:
+    """Пример использования стека."""
+    print("=== Пример работы стека (LIFO) ===")
+    stack = Stack()
+    
+    # Добавляем элементы
+    stack.push("первый")
+    stack.push("второй")
+    stack.push("третий")
+    
+    print(f"Стек после добавлений: {stack}")
+    print(f"Вершина стека (peek): {stack.peek()}")
+    print(f"Размер стека: {len(stack)}")
+    
+    # Удаляем элементы (в обратном порядке)
+    print("\nУдаляем элементы из стека:")
+    while not stack.is_empty():
+        print(f"  Извлечено: {stack.pop()}")
+    
+    print(f"Стек пуст: {stack.is_empty()}")
+
+
+def queue_example() -> None:
+    """Пример использования очереди."""
+    print("\n=== Пример работы очереди (FIFO) ===")
+    queue = Queue()
+    
+    # Добавляем элементы
+    queue.enqueue("первый")
+    queue.enqueue("второй")
+    queue.enqueue("третий")
+    
+    print(f"Очередь после добавлений: {queue}")
+    print(f"Первый в очереди (peek): {queue.peek()}")
+    print(f"Размер очереди: {len(queue)}")
+    
+    # Удаляем элементы (в порядке добавления)
+    print("\nУдаляем элементы из очереди:")
+    while not queue.is_empty():
+        print(f"  Извлечено: {queue.dequeue()}")
+    
+    print(f"Очередь пуста: {queue.is_empty()}")
+
+
+def reverse_string_with_stack(text: str) -> str:
+    """
+    Пример практического применения стека: переворот строки.
+    
+    Args:
+        text: Исходная строка
+        
+    Returns:
+        Перевернутая строка
+    """
+    stack = Stack()
+    
+    # Добавляем все символы в стек
+    for char in text:
+        stack.push(char)
+    
+    # Извлекаем символы (в обратном порядке)
+    reversed_text = []
+    while not stack.is_empty():
+        reversed_text.append(stack.pop())
+    
+    return ''.join(reversed_text)
+
+
+if __name__ == "__main__":
+    # Демонстрация работы
+    stack_example()
+    queue_example()
+    
+    # Практический пример
+    print("\n=== Практический пример: переворот строки с помощью стека ===")
+    text = "Hello, World!"
+    reversed_text = reverse_string_with_stack(text)
+    print(f"Исходная строка: {text}")
+    print(f"Перевернутая строка: {reversed_text}")
+
+```
+
+#### linked_list.py
+
+``` python
+"""
+Модуль содержит реализацию односвязного списка (Singly Linked List).
+"""
+
+from typing import Any, Optional, Iterator
+
+
+class Node:
+    """
+    Узел односвязного списка.
+    
+    Содержит значение и ссылку на следующий узел.
+    """
+    
+    def __init__(self, value: Any):
+        """
+        Инициализация узла.
+        
+        Args:
+            value: Значение, хранимое в узле
+        """
+        self.value: Any = value
+        self.next: Optional['Node'] = None
+    
+    def __str__(self) -> str:
+        """Строковое представление узла."""
+        return f"[{self.value}]"
+    
+    def __repr__(self) -> str:
+        """Представление узла для отладки."""
+        return f"Node({self.value})"
+
+
+class SinglyLinkedList:
+    """
+    Односвязный список.
+    
+    Состоит из узлов Node, каждый из которых содержит значение и ссылку 
+    на следующий узел. Последний узел имеет next = None.
+    
+    Основные операции:
+    - append(value): Добавить в конец - O(1) с tail, O(n) без tail
+    - prepend(value): Добавить в начало - O(1)
+    - insert(index, value): Вставить по индексу - O(n) в худшем случае
+    - remove(value): Удалить по значению - O(n)
+    - remove_at(index): Удалить по индексу - O(n)
+    """
+    
+    def __init__(self):
+        """Инициализация пустого списка."""
+        self.head: Optional[Node] = None
+        self.tail: Optional[Node] = None
+        self._size: int = 0
+    
+    def append(self, value: Any) -> None:
+        """
+        Добавляет элемент в конец списка.
+        
+        Сложность: O(1) при использовании tail, O(n) без tail.
+        
+        Args:
+            value: Значение для добавления
+        """
+        new_node = Node(value)
+        
+        if self.is_empty():
+            # Если список пуст, новый узел становится и head, и tail
+            self.head = new_node
+            self.tail = new_node
+        else:
+            # Добавляем в конец и обновляем tail
+            self.tail.next = new_node
+            self.tail = new_node
+        
+        self._size += 1
+    
+    def prepend(self, value: Any) -> None:
+        """
+        Добавляет элемент в начало списка.
+        
+        Сложность: O(1).
+        
+        Args:
+            value: Значение для добавления
+        """
+        new_node = Node(value)
+        
+        if self.is_empty():
+            # Если список пуст, новый узел становится и head, и tail
+            self.head = new_node
+            self.tail = new_node
+        else:
+            # Добавляем в начало
+            new_node.next = self.head
+            self.head = new_node
+        
+        self._size += 1
+    
+    def insert(self, index: int, value: Any) -> None:
+        """
+        Вставляет элемент по указанному индексу.
+        
+        Сложность: O(n) в худшем случае.
+        
+        Args:
+            index: Позиция для вставки (0-based)
+            value: Значение для вставки
+            
+        Raises:
+            IndexError: Если индекс выходит за пределы списка
+        """
+        if index < 0 or index > self._size:
+            raise IndexError(f"Индекс {index} выходит за пределы списка (размер: {self._size})")
+        
+        if index == 0:
+            # Вставка в начало
+            self.prepend(value)
+        elif index == self._size:
+            # Вставка в конец
+            self.append(value)
+        else:
+            # Вставка в середину
+            new_node = Node(value)
+            current = self.head
+            current_index = 0
+            
+            # Ищем узел перед позицией вставки
+            while current_index < index - 1:
+                current = current.next
+                current_index += 1
+            
+            # Вставляем новый узел
+            new_node.next = current.next
+            current.next = new_node
+            
+            self._size += 1
+    
+    def remove(self, value: Any) -> bool:
+        """
+        Удаляет первое вхождение указанного значения.
+        
+        Сложность: O(n).
+        
+        Args:
+            value: Значение для удаления
+            
+        Returns:
+            True если элемент был удалён, False если не найден
+        """
+        if self.is_empty():
+            return False
+        
+        # Специальный случай: удаление первого элемента
+        if self.head.value == value:
+            self.head = self.head.next
+            self._size -= 1
+            
+            # Если список стал пустым, обновляем tail
+            if self.head is None:
+                self.tail = None
+            
+            return True
+        
+        # Ищем узел, предшествующий удаляемому
+        current = self.head
+        while current.next is not None and current.next.value != value:
+            current = current.next
+        
+        # Если нашли узел для удаления
+        if current.next is not None:
+            current.next = current.next.next
+            self._size -= 1
+            
+            # Если удалили последний элемент, обновляем tail
+            if current.next is None:
+                self.tail = current
+            
+            return True
+        
+        return False
+    
+    def remove_at(self, index: int) -> Any:
+        """
+        Удаляет элемент по указанному индексу и возвращает его значение.
+        
+        Сложность: O(n) в худшем случае.
+        
+        Args:
+            index: Индекс элемента для удаления
+            
+        Returns:
+            Значение удалённого элемента
+            
+        Raises:
+            IndexError: Если индекс выходит за пределы списка
+        """
+        if index < 0 or index >= self._size:
+            raise IndexError(f"Индекс {index} выходит за пределы списка (размер: {self._size})")
+        
+        # Специальный случай: удаление первого элемента
+        if index == 0:
+            value = self.head.value
+            self.head = self.head.next
+            self._size -= 1
+            
+            # Если список стал пустым, обновляем tail
+            if self.head is None:
+                self.tail = None
+            
+            return value
+        
+        # Ищем узел, предшествующий удаляемому
+        current = self.head
+        current_index = 0
+        
+        while current_index < index - 1:
+            current = current.next
+            current_index += 1
+        
+        # Удаляем узел
+        value = current.next.value
+        current.next = current.next.next
+        self._size -= 1
+        
+        # Если удалили последний элемент, обновляем tail
+        if current.next is None:
+            self.tail = current
+        
+        return value
+    
+    def get(self, index: int) -> Any:
+        """
+        Возвращает значение элемента по указанному индексу.
+        
+        Сложность: O(n).
+        
+        Args:
+            index: Индекс элемента
+            
+        Returns:
+            Значение элемента
+            
+        Raises:
+            IndexError: Если индекс выходит за пределы списка
+        """
+        if index < 0 or index >= self._size:
+            raise IndexError(f"Индекс {index} выходит за пределы списка (размер: {self._size})")
+        
+        current = self.head
+        current_index = 0
+        
+        while current_index < index:
+            current = current.next
+            current_index += 1
+        
+        return current.value
+    
+    def index(self, value: Any) -> int:
+        """
+        Возвращает индекс первого вхождения указанного значения.
+        
+        Сложность: O(n).
+        
+        Args:
+            value: Значение для поиска
+            
+        Returns:
+            Индекс элемента или -1, если не найден
+        """
+        current = self.head
+        index = 0
+        
+        while current is not None:
+            if current.value == value:
+                return index
+            current = current.next
+            index += 1
+        
+        return -1
+    
+    def is_empty(self) -> bool:
+        """
+        Проверяет, пуст ли список.
+        
+        Returns:
+            True если список пуст, иначе False
+        """
+        return self.head is None
+    
+    def __len__(self) -> int:
+        """
+        Возвращает количество элементов в списке.
+        
+        Returns:
+            Количество элементов
+        """
+        return self._size
+    
+    def __iter__(self) -> Iterator[Any]:
+        """
+        Возвращает итератор по значениям списка.
+        
+        Returns:
+            Итератор
+        """
+        current = self.head
+        while current is not None:
+            yield current.value
+            current = current.next
+    
+    def __str__(self) -> str:
+        """
+        Возвращает строковое представление списка.
+        
+        Returns:
+            Строка вида "A -> B -> C -> None"
+        """
+        if self.is_empty():
+            return "SinglyLinkedList(пуст)"
+        
+        result = []
+        current = self.head
+        
+        while current is not None:
+            result.append(str(current.value))
+            current = current.next
+        
+        return " -> ".join(result) + " -> None"
+    
+    def __repr__(self) -> str:
+        """Возвращает представление списка для отладки."""
+        values = list(self)
+        return f"SinglyLinkedList({values})"
+    
+    def clear(self) -> None:
+        """Очищает список (удаляет все элементы)."""
+        self.head = None
+        self.tail = None
+        self._size = 0
+
+
+def linked_list_example() -> None:
+    """Пример использования односвязного списка."""
+    print("=== Пример работы односвязного списка ===")
+    lst = SinglyLinkedList()
+    
+    # Добавляем элементы
+    lst.append("первый")
+    lst.append("второй")
+    lst.prepend("нулевой")  # Добавляем в начало
+    
+    print(f"Список после добавлений: {lst}")
+    print(f"Размер списка: {len(lst)}")
+    print(f"Первый элемент: {lst.get(0)}")
+    print(f"Последний элемент: {lst.get(len(lst)-1)}")
+    
+    # Вставляем элемент
+    lst.insert(2, "вставленный")
+    print(f"\nПосле вставки по индексу 2: {lst}")
+    
+    # Ищем элемент
+    search_value = "второй"
+    index = lst.index(search_value)
+    print(f"Элемент '{search_value}' найден по индексу: {index}")
+    
+    # Удаляем элемент
+    removed = lst.remove("вставленный")
+    print(f"\nУдаление 'вставленного': {'успешно' if removed else 'не найден'}")
+    print(f"Список после удаления: {lst}")
+    
+    # Итерируемся по списку
+    print("\nИтерация по списку:")
+    for i, value in enumerate(lst):
+        print(f"  Элемент {i}: {value}")
+
+
+if __name__ == "__main__":
+    linked_list_example()
+```
+
+##### Тесты и Выводы:
+
+![alt text](images/lab10/test1.png)
+![alt text](images/lab10/test2.png)
+![alt text](images/lab10/test3.png)
+![alt text](images/lab10/test4.png)
